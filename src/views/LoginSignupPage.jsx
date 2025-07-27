@@ -43,8 +43,13 @@ function LoginSignupPage() {
       if (tab === 1) {
         // Register
         const res = await axios.post("/signup", { ...form, role: "user" });
-        if (res.data.token) {
-          localStorage.setItem("token", res.data.token);
+        // if (res.data.token) {
+        //   localStorage.setItem("token", res.data.token);
+        // }
+        const { token, user } = res.data;
+        if (token && user) {
+          localStorage.setItem("token", token);
+          localStorage.setItem("user", JSON.stringify(user)); 
         }
         setAlert({
           type: "success",
@@ -55,8 +60,13 @@ function LoginSignupPage() {
         // Login
         const { email, password } = form;
         const res = await axios.post("/login", { email, password });
-        if (res.data.token) {
-          localStorage.setItem("token", res.data.token);
+        // if (res.data.token) {
+        //   localStorage.setItem("token", res.data.token);
+        // }
+        const { token, user } = res.data;
+        if (token && user) {
+          localStorage.setItem("token", token);
+          localStorage.setItem("user", JSON.stringify(user)); 
         }
         setAlert({
           type: "success",

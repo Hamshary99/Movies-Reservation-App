@@ -4,6 +4,7 @@ import { userModel } from "../models/userModel.js";
 export const authMiddleware = async (req, res, next) => {
   try {
     // Your authentication logic here
+    console.log("After Bearer: ", req.headers.authorization.split(" ")[1]);
     let token;
     if (
       req.headers.authorization &&
@@ -12,7 +13,7 @@ export const authMiddleware = async (req, res, next) => {
       token = req.headers.authorization.split(" ")[1];
     }
 
-    // console.log("Token:", token);
+    console.log("Token:", token);
 
     if (!token) {
       return res.status(401).json({ message: "You're not logged in" });
@@ -20,7 +21,7 @@ export const authMiddleware = async (req, res, next) => {
 
     // Verify the token
     const decoded = await jwt.verify(token, process.env.JWT_SECRET);
-    // console.log("Decoded token:", decoded);
+    console.log("Decoded token:", decoded);
     
     // Check if the user exists in the database (or changed password after token was issued)
     const currentUser = await userModel.findById(decoded.id);
@@ -35,8 +36,8 @@ export const authMiddleware = async (req, res, next) => {
 
     // Attach the user to the request object for further use in the application
     req.user = currentUser;
-    // console.log("User:", req.user);
-    next(); // Proceed to the next middleware or route handler
+    console.log("User:", req.user);
+    next();
   } catch (error) {
     console.error("Authentication error:", error);
     return res.status(401).json({
