@@ -1,5 +1,8 @@
 import express from "express";
+
 import dotenv from "dotenv";
+dotenv.config();
+
 import cors from "cors";
 import adminRoutes from "./routes/adminRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
@@ -8,7 +11,6 @@ import loginRoutes from "./routes/loginRoutes.js";
 // import receptionRoutes from './routes/receptionRoutes.js';
 import mongoose from "mongoose";
 import { handleError } from "./utils/errorHandler.js";
-dotenv.config();
 
 // Connect to MongoDB
 mongoose

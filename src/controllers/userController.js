@@ -11,7 +11,10 @@ import {
   fetchShowtimesOfMovie,
 } from "../services/userServices/getUserServices.js";
 
-import { postBookingTicket } from "../services/userServices/postUserServices.js";
+import {
+  postBookingTicket,
+  postBookingPayment,
+} from "../services/userServices/postUserServices.js";
 
 import {
   updateProfile,
@@ -121,15 +124,6 @@ export const getBooking = async (req, res, next) => {
 
 export const getAllUserBookings = async (req, res, next) => {
   try {
-    // const userId = req.user._id;
-    // // console.log("User ID:", userId);
-
-    // const bookings = await bookingModel
-    //   .find({ user: userId })
-    //   .populate("showtime")
-    //   .populate("seats")
-    //   .populate("user");
-
     const bookings = await fetchAllUserBookings(req.user._id);
     res.status(200).json({
       message: "User bookings fetched successfully",
@@ -151,7 +145,7 @@ export const getAvailableSeatsForShowtime = async (req, res, next) => {
   }
 };
 
-//Should never update a booking when it's 72h before the showtime
+//Should never update a booking when it's 24h before the showtime
 export const putBooking = async (req, res) => {
   try {
     // const { bookingId } = req.params || req.query; // Get booking ID from params or query
@@ -240,7 +234,7 @@ export const getMovie = async (req, res, next) => {
   }
 };
 
-// Add this new controller function
+
 export const getShowtimesByMovieAndDate = async (req, res, next) => {
   try {
     const { movieId, date } = req.params;
@@ -253,3 +247,24 @@ export const getShowtimesByMovieAndDate = async (req, res, next) => {
     next(error);
   }
 };
+
+// Function can't be used as Stripe forbids inserting card details directly.
+export const confirmBookingPayment = async (req, res, next) => {
+  try {
+    // Logic
+    const paymentMethod = await postBookingPayment(
+      req.body.customerId,
+      req.body.paymentType,
+      req.body.cardNumber,
+      req.body.expMonth,
+      req.body.expYear,
+      req.body.cvc
+    );
+    res.status(200).json({
+      message: "Booking payment confirmed successfully",
+      paymentMethod
+    });
+  } catch (error) {
+    next(error);
+  }
+}

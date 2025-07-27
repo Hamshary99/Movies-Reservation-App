@@ -1,10 +1,10 @@
 import { bookingModel } from "../../models/bookingModel.js";
 import { seatModel } from "../../models/seatModel.js";
 import { userModel } from "../../models/userModel.js";
-// import {
-//   createClientData,
-//   createPaymentIntent
-//  } from "../../utils/onlinePayment.js";
+import {
+  createPaymentIntent,
+  createPaymentMethod,
+} from "../../utils/onlinePayment.js";
 import { ApiError } from "../../utils/errorHandler.js";
 import { showtimeModel } from "../../models/showtimeModel.js";
 
@@ -40,8 +40,8 @@ export const postBookingTicket = async (data, id) => {
 
     // Find all seat documents for the given seat IDs
     const seatDetails = await seatModel.find({ _id: { $in: seatIds } });
-    console.log("Seat details:", seatDetails);
-    console.log("Seat IDs:", seatIds);
+    // console.log("Seat details:", seatDetails);
+    // console.log("Seat IDs:", seatIds);
     if (seatDetails.length !== seatIds.length) {
       throw new ApiError("One or more seat IDs are invalid", 400);
     }
@@ -64,22 +64,9 @@ export const postBookingTicket = async (data, id) => {
       isUsed: false,
     });
 
-    // const clientData = await createClientData(user.name, user.email, user.phone);
+    const payment = await createPaymentIntent(showtimeDetails.price * seatIds.length, "usd", newBooking);
 
-    // const paymentIntent = await createPaymentIntent(
-    //   showtimeDetails.price,
-    //   process.env.LOCAL_CURRENCY,
-    //   user.name,
-    //   newBooking._id,
-    //   user.email,
-    //   clientData.id
-    // );
-
-    // if(!paymentIntent.client_secret) {
-    //   throw new ApiError("Failed to create payment intent", 500);
-    // }
-
-    return newBooking;
+    return { newBooking, payment };
   } catch (error) {
     throw new ApiError(
       error.message || "Failed to post booking",
@@ -87,3 +74,29 @@ export const postBookingTicket = async (data, id) => {
     );
   }
 };
+
+// Function can't be used as Stripe forbids inserting card details directly.
+export const postBookingPayment = async ( customerId, paymentType, cardNumber, expMonth, expYear, cvc) => {
+  try {
+    if( !customerId || !paymentType || !cardNumber || !expMonth || !expYear || !cvc) {
+      throw new ApiError("Customer ID, payment method, card number, expiration month, expiration year, and CVC are required", 400);
+    }
+
+    const paymentMethodData = await createPaymentMethod(
+      paymentType,
+      cardNumber,
+      expMonth,
+      expYear,
+      cvc,
+      customerId
+    );
+    
+
+    return paymentMethodData;
+  } catch (error) {
+    throw new ApiError(
+      error.message || "Failed to confirm payment method",
+      error.statusCode || 500
+    );
+  }
+}

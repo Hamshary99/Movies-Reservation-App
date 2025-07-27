@@ -48,7 +48,11 @@ export const userSchema = new Schema({
   token: {
     type: String,
     select: false, // Do not return token in queries
-  }
+  },
+  stripeCustomerId: {
+    type: String,
+    required: false,
+  },
 });
 
 userSchema.pre("save", async function (next) {

@@ -2,9 +2,9 @@ import express from "express";
 import {
   getProfile,
   putProfile,
-  getShowtimes,
+  // getShowtimes,
   getShowtime,
-  getShowtimesByMovieAndDate, 
+  getShowtimesByMovieAndDate,
   getShowtimesOfMovie,
   postBooking,
   getBooking,
@@ -13,7 +13,8 @@ import {
   deleteBooking,
   getAvailableSeatsForShowtime,
   getMovie,
-  getMovies
+  getMovies,
+  confirmBookingPayment,
 } from "../controllers/userController.js";
 
 import {
@@ -35,11 +36,18 @@ router.post("/booking", authMiddleware, restrictTo("user"), postBooking);
 router.get("/booking/:id", authMiddleware, restrictTo("user"), getBooking);
 router.get("/booking", authMiddleware, restrictTo("user"), getAllUserBookings);
 router.put("/booking/:id", authMiddleware, restrictTo("user"), putBooking);
-// router.put("/booking/:id/confirm", authMiddleware, restrictTo("user"), confirmBooking);
 router.delete("/booking/:id", authMiddleware, restrictTo("user"), deleteBooking);
 
 router.get("/movies", getMovies);
 router.get("/movies/:id", getMovie);
 router.get("/movies/:movieId/showtimes/:date", getShowtimesByMovieAndDate);
+
+// Function can't be used as Stripe forbids inserting card details directly.
+router.post(
+  "/confirm-booking-payment",
+  authMiddleware,
+  restrictTo("user"),
+  confirmBookingPayment
+);
 
 export default router;

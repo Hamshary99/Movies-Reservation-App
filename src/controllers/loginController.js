@@ -1,11 +1,13 @@
 import { userModel } from "../models/userModel.js";
+import { createClientData } from "../utils/onlinePayment.js";
 import jwt from "jsonwebtoken";
 
 export const postSignup = async (req, res) => {
   try {
-    const { name, email, password, confirmPassword, role, phone } = req.body;
+    const { name, email, password, confirmPassword, phone } = req.body;
+    let { role } = req.body; // Role can be provided in the request body
 
-    if (!name || !email || !password || !confirmPassword || !phone) {
+    if (!name || !email || !password || !confirmPassword) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -13,9 +15,8 @@ export const postSignup = async (req, res) => {
       return res.status(400).json({ message: "Passwords do not match" });
     }
 
-    let userRole = role;
-    if (!userRole) {
-      userRole = "user"; // Default role if not provided
+    if (!role) {
+      role = "user"; // Default role if not provided
     }
 
     // even if we used unique: true in the schema, we still need to check for existing users
@@ -29,8 +30,8 @@ export const postSignup = async (req, res) => {
       name,
       email,
       password,
-      role: userRole,
-      phone,
+      role,
+      phone: phone ? phone : undefined, // Only include phone if provided
     });
 
     // Generate a JWT token
@@ -45,12 +46,19 @@ export const postSignup = async (req, res) => {
 
     // Token storing in MongoDB for the sake of development purposes
     user.token = token;
+
+    console.log("Stripe secret: ", process.env.STRIPE_SECRET_KEY);
+
+    // Create a Stripe customer 
+    const stripeCustomer = await createClientData(name, email, phone);
+    user.stripeCustomerId = stripeCustomer.id; // As create client returns the customer object with an id
     await user.save();
 
     res.status(201).json({
       message: "Signup successful",
       user,
-      token
+      token,
+      stripeCustomerId: user.stripeCustomerId,
     });
   } catch (error) {
     console.error("Error during signup:", error);
