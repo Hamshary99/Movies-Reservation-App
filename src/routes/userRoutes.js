@@ -13,8 +13,7 @@ import {
   deleteBooking,
   getAvailableSeatsForShowtime,
   getMovie,
-  getMovies,
-  confirmBookingPayment,
+  getMovies
 } from "../controllers/userController.js";
 
 import {
@@ -42,12 +41,6 @@ router.get("/movies", getMovies);
 router.get("/movies/:id", getMovie);
 router.get("/movies/:movieId/showtimes/:date", getShowtimesByMovieAndDate);
 
-// Function can't be used as Stripe forbids inserting card details directly.
-router.post(
-  "/confirm-booking-payment",
-  authMiddleware,
-  restrictTo("user"),
-  confirmBookingPayment
-);
+
 
 export default router;

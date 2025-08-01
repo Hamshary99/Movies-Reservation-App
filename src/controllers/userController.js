@@ -13,7 +13,6 @@ import {
 
 import {
   postBookingTicket,
-  postBookingPayment,
 } from "../services/userServices/postUserServices.js";
 
 import {
@@ -107,7 +106,7 @@ export const getShowtimesOfMovie = async (req, res, next) => {
 export const postBooking = async (req, res, next) => {
   try {
     const booking = await postBookingTicket(req.body, req.user._id);
-    res.status(201).json({ message: "Ticket reserved successfully", booking });
+    res.status(201).json({ message: "Ticket reserved and about to pay", paymentData: booking });
   } catch (error) {
     next(error);
   }
@@ -248,23 +247,3 @@ export const getShowtimesByMovieAndDate = async (req, res, next) => {
   }
 };
 
-// Function can't be used as Stripe forbids inserting card details directly.
-export const confirmBookingPayment = async (req, res, next) => {
-  try {
-    // Logic
-    const paymentMethod = await postBookingPayment(
-      req.body.customerId,
-      req.body.paymentType,
-      req.body.cardNumber,
-      req.body.expMonth,
-      req.body.expYear,
-      req.body.cvc
-    );
-    res.status(200).json({
-      message: "Booking payment confirmed successfully",
-      paymentMethod
-    });
-  } catch (error) {
-    next(error);
-  }
-}

@@ -1,5 +1,5 @@
 import { userModel } from "../models/userModel.js";
-import { createClientData } from "../utils/onlinePayment.js";
+// import { createClientData } from "../utils/onlinePayment.js";
 import jwt from "jsonwebtoken";
 
 export const postSignup = async (req, res) => {
@@ -50,15 +50,15 @@ export const postSignup = async (req, res) => {
     console.log("Stripe secret: ", process.env.STRIPE_SECRET_KEY);
 
     // Create a Stripe customer 
-    const stripeCustomer = await createClientData(name, email, phone);
-    user.stripeCustomerId = stripeCustomer.id; // As create client returns the customer object with an id
-    await user.save();
+    // const stripeCustomer = await createClientData(name, email, phone);
+    // user.stripeCustomerId = stripeCustomer.id; // As create client returns the customer object with an id
+    // await user.save();
 
     res.status(201).json({
       message: "Signup successful",
       user,
       token,
-      stripeCustomerId: user.stripeCustomerId,
+      // stripeCustomerId: user.stripeCustomerId,
     });
   } catch (error) {
     console.error("Error during signup:", error);

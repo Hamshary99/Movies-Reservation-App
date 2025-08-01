@@ -1,10 +1,7 @@
 import { bookingModel } from "../../models/bookingModel.js";
 import { seatModel } from "../../models/seatModel.js";
 import { userModel } from "../../models/userModel.js";
-import {
-  createPaymentIntent,
-  createPaymentMethod,
-} from "../../utils/onlinePayment.js";
+import { checkoutPayment } from "../../utils/onlinePayment.js";
 import { ApiError } from "../../utils/errorHandler.js";
 import { showtimeModel } from "../../models/showtimeModel.js";
 
@@ -13,7 +10,13 @@ export const postBookingTicket = async (data, id) => {
     if (!id) {
       throw new ApiError("User ID is required", 400);
     }
+
+    if (!data || !data.showtimeId || !data.seatId) {
+      throw new ApiError("Booking data is required", 400);
+    }
+
     const { showtimeId, seatId } = data;
+
     // Ensure seatId is always an array
     let seatIds = Array.isArray(seatId)
       ? seatId
@@ -40,8 +43,6 @@ export const postBookingTicket = async (data, id) => {
 
     // Find all seat documents for the given seat IDs
     const seatDetails = await seatModel.find({ _id: { $in: seatIds } });
-    // console.log("Seat details:", seatDetails);
-    // console.log("Seat IDs:", seatIds);
     if (seatDetails.length !== seatIds.length) {
       throw new ApiError("One or more seat IDs are invalid", 400);
     }
@@ -56,17 +57,28 @@ export const postBookingTicket = async (data, id) => {
       throw new ApiError("One or more seats are already reserved", 400);
     }
 
-    const newBooking = await bookingModel.create({
+    const newBooking = {
       showtime: showtimeId,
       seats: seatIds,
       user: id,
       isBooked: true,
       isUsed: false,
-    });
+    };
 
-    const payment = await createPaymentIntent(showtimeDetails.price * seatIds.length, "usd", newBooking);
+    const payment = await checkoutPayment(newBooking);
 
-    return { newBooking, payment };
+    if (!payment || !payment.url) {
+      throw new ApiError("Payment session creation failed", 500);
+    }
+
+    return {
+      payment: {
+        url: payment.url,
+        metadata: payment.metadata,
+        price: payment.amount_total / 100,
+        quantity: payment.quantity,
+      },
+    };
   } catch (error) {
     throw new ApiError(
       error.message || "Failed to post booking",
@@ -74,29 +86,3 @@ export const postBookingTicket = async (data, id) => {
     );
   }
 };
-
-// Function can't be used as Stripe forbids inserting card details directly.
-export const postBookingPayment = async ( customerId, paymentType, cardNumber, expMonth, expYear, cvc) => {
-  try {
-    if( !customerId || !paymentType || !cardNumber || !expMonth || !expYear || !cvc) {
-      throw new ApiError("Customer ID, payment method, card number, expiration month, expiration year, and CVC are required", 400);
-    }
-
-    const paymentMethodData = await createPaymentMethod(
-      paymentType,
-      cardNumber,
-      expMonth,
-      expYear,
-      cvc,
-      customerId
-    );
-    
-
-    return paymentMethodData;
-  } catch (error) {
-    throw new ApiError(
-      error.message || "Failed to confirm payment method",
-      error.statusCode || 500
-    );
-  }
-}

@@ -9,6 +9,7 @@ import userRoutes from "./routes/userRoutes.js";
 import loginRoutes from "./routes/loginRoutes.js";
 // import visitorRoutes from './routes/visitorRoutes.js';
 // import receptionRoutes from './routes/receptionRoutes.js';
+import webhookRouter from "./routes/webhookRoutes.js";
 import mongoose from "mongoose";
 import { handleError } from "./utils/errorHandler.js";
 
@@ -32,6 +33,10 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
+// Must be before express.json() to parse raw body for Stripe webhook
+app.use("/stripe", webhookRouter);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -46,6 +51,7 @@ app.use(loginRoutes);
 // app.use('/reception', receptionRoutes);
 app.use("/admin", adminRoutes);
 app.use("/user", userRoutes);
+
 
 // API error handling
 app.use((err, req, res, next) => {
