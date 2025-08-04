@@ -3,7 +3,7 @@ import { DatabaseError } from "../utils/errorHandler.js";
 
 export const findUserById = async (id) => {
     try {
-        const user = await userModel.findById(id).select("+passwordResetToken +passwordResetExpires");
+        const user = await userModel.findById(id);
         if (!user) {
             throw new DatabaseError("User not found", 404);
         }
@@ -16,7 +16,7 @@ export const findUserById = async (id) => {
 
 export const findUserByEmail = async (email) => {
     try {
-        const user = await userModel.findOne({ email }).select("+passwordResetToken +passwordResetExpires");
+        const user = await userModel.findOne({ email });
         if (!user) {
             throw new DatabaseError("User not found", 404);
         }

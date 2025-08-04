@@ -25,6 +25,7 @@ export const updateProfile = async (id, data, userId, userRole) => {
     if (data.email) fieldsToUpdate.email = data.email;
     if (data.phone) fieldsToUpdate.phone = data.phone;
 
+    // Best practice to skip the password validation and requiring it from the user
     const user = await userModel
       .findByIdAndUpdate(targetId, fieldsToUpdate, {
         new: true,

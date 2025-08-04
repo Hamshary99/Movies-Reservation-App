@@ -2,8 +2,22 @@ import crypto from "crypto";
 import { userModel } from "../models/userModel.js";
 import { ApiError } from "../utils/errorHandler.js";
 import { sendEmail } from "../utils/email.js";
-import * as userRepo from "../repositories/userRepository.js";
+import * as userRepo from "../repository/userRepository.js";
 import jwt from "jsonwebtoken";
+
+const tokenCookieCreator = (res, token) => { 
+  let cookieOptions = {
+    expires: new Date(
+      Date.now() + process.env.JWT_COOKIE_EXPIRATION * 24 * 60 * 60 * 1000
+    ),
+    httpOnly: true, // Prevents client-side JavaScript from accessing the cookie
+    sameSite: "strict", // Helps prevent CSRF attacks
+  };
+  if (process.env.NODE_ENV === "production") {
+    cookieOptions.secure = true; // Ensures the cookie is sent over HTTPS only
+  }
+  res.cookie("jwt", token, cookieOptions);
+}
 
 export const postSignup = async (req, res, next) => {
   try {
@@ -45,17 +59,15 @@ export const postSignup = async (req, res, next) => {
         expiresIn: process.env.JWT_EXPIRATION,
       }
     );
-    console.log("User signed up:", user.email);
+    // console.log("User signed up:", user.email);
 
-    // Token storing in MongoDB for the sake of development purposes
-    // user.token = token;
-
-    console.log("Stripe secret: ", process.env.STRIPE_SECRET_KEY);
+    tokenCookieCreator(res, token);
+    user.password = undefined; // Remove password from the response for security reasons
+    user.passwordChangedAt = undefined; // Remove passwordChangedAt from the response for security reasons
 
     res.status(201).json({
       message: "Signup successful",
-      user,
-      token,
+      user
     });
   } catch (error) {
     next(error);
@@ -85,10 +97,14 @@ export const postLogin = async (req, res, next) => {
       expiresIn: process.env.JWT_EXPIRATION,
     });
 
+    // Send token to cookie
+    tokenCookieCreator(res, token);
+    user.password = undefined; // Remove password from the response for security reasons
+    user.passwordChangedAt = undefined; // Remove passwordChangedAt from the response for security reasons
+
     res.status(200).json({
       message: "Login successful",
       user,
-      token,
     });
   } catch (error) {
     next(error);
@@ -142,7 +158,7 @@ export const postForgotPassword = async (req, res, next) => {
   }
 };
 
-export const postResetPassword = async (req, res, next) => {
+export const ResetPassword = async (req, res, next) => {
   try {
     // Get user by reset token
     const { token } = req.params;
@@ -153,7 +169,7 @@ export const postResetPassword = async (req, res, next) => {
     if (!password || !confirmPassword) {
       throw new ApiError("Password and confirm password are required", 400);
     }
-    if( password !== confirmPassword) {
+    if (password !== confirmPassword) {
       throw new ApiError("Passwords do not match", 400);
     }
 
@@ -182,10 +198,58 @@ export const postResetPassword = async (req, res, next) => {
       expiresIn: process.env.JWT_EXPIRATION,
     });
 
+    tokenCookieCreator(res, loginToken);
+    user.password = undefined; // Remove password from the response for security reasons
+    user.passwordChangedAt = undefined; // Remove passwordChangedAt from the response for security reasons
+
     res.status(200).json({
       message: "Password reset successful",
       user,
-      token: loginToken,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+
+export const patchPassword = async (req, res, next) => {
+  try {
+    const { currentPassword, newPassword, confirmNewPassword, userID } =
+      req.body;
+
+    if (!currentPassword || !newPassword || !confirmNewPassword || !userID) {
+      throw new ApiError("All fields are required", 400);
+    }
+
+    if (newPassword !== confirmNewPassword) {
+      throw new ApiError("New passwords do not match", 400);
+    }
+
+    const user = await userRepo.findById(userID).select("+password"); // Include password field for comparison
+
+    if (!user.comparePassword(currentPassword) || !user) {
+      throw new ApiError("Incorrect email or password", 401);
+    }
+
+    user.password = newPassword; // Update the password
+    await user.save();
+
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: process.env.JWT_EXPIRATION,
+      }
+    );
+
+    // Send token to cookie
+    tokenCookieCreator(res, token);
+    user.password = undefined; // Remove password from the response for security reasons
+    user.passwordChangedAt = undefined; // Remove passwordChangedAt from the response for security reasons
+
+    res.status(200).json({
+      message: "Password updated successfully",
+      user,
     });
   } catch (error) {
     next(error);

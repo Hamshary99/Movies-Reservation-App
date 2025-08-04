@@ -22,13 +22,13 @@ import {
 
 import { deleteBookingTicket } from "../services/userServices/deleteUserServices.js";
 
+import { ApiError } from "../utils/errorHandler.js";
+
 export const getProfile = async (req, res, next) => {
   try {
     // Only allow if the requested id matches the logged-in user's id
     if (req.user._id.toString() !== req.params.id) {
-      return res
-        .status(403)
-        .json({ message: "You are not allowed to view this profile." });
+      throw new ApiError("You are not allowed to view this profile.", 403);
     }
 
     const user = await fetchProfile(req.params.id || req.query.id);
@@ -46,10 +46,13 @@ export const putProfile = async (req, res, next) => {
   try {
     // Only allow if the requested id matches the logged-in user's id
     if (req.user._id.toString() !== req.params.id) {
-      return res
-        .status(403)
-        .json({ message: "You are not allowed to update this profile." });
+      throw new ApiError("You are not allowed to update this profile.", 403);
     }
+
+    if(req.body.password || req.body.confirmPassword) {
+      throw new ApiError("Password cannot be updated here. Use the change password route.", 400);
+    }
+
     const updatedUser = await updateProfile(
       req.params.id || req.query.id,
       req.body,
@@ -68,9 +71,7 @@ export const putProfile = async (req, res, next) => {
 export const deleteProfile = async (req, res, next) => {
   try {
     if( req.user._id.toString() !== req.params.id) {
-      return res
-        .status(403)
-        .json({ message: "You are not allowed to delete this profile." });
+      throw new ApiError("You are not allowed to delete this profile.", 403);
     }
     
     await userModel.findByIdAndUpdate(req.user.id, { active: false });
@@ -108,8 +109,8 @@ export const getShowtime = async (req, res, next) => {
 export const getShowtimesOfMovie = async (req, res, next) => {
   try {
     const { date, movieId } = req.query;
-    console.log("date: ", date);
-    console.log("movie: ", movieId);
+    // console.log("date: ", date);
+    // console.log("movie: ", movieId);
     const showtime = await fetchShowtimesOfMovie(date, movieId);
     res.status(200).json({
       message: "Showtimes fetched successfully",
@@ -205,7 +206,7 @@ export const getMovies = async (req, res, next) => {
 export const getMovie = async (req, res, next) => {
   try {
     if (!req.params.id || req.params.id === "") {
-      return res.status(400).json({ message: "Movie ID is required" });
+      throw new ApiError("Movie ID is required", 400);
     }
     const movie = await fetchMovie(req.params.id || req.query.id);
     res.status(200).json({ message: "Movie fetched successfully", movie });
