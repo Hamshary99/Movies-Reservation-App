@@ -3,7 +3,6 @@ import { userModel } from "../models/userModel.js";
 
 import { StripeError } from "./errorHandler.js";
 import { showtimeModel } from "../models/showtimeModel.js";
-import { bookingModel } from "../models/bookingModel.js";
 import { seatModel } from "../models/seatModel.js";
 import dotenv from "dotenv";
 

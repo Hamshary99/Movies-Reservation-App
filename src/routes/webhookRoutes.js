@@ -1,8 +1,7 @@
 import express from "express";
 import Stripe from "stripe";
 import { bookingModel } from "../models/bookingModel.js";
-import { showtimeModel } from "../models/showtimeModel.js";
-import { userModel } from "../models/userModel.js";
+
 
 const webhookRouter = express.Router();
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);

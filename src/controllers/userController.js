@@ -65,6 +65,23 @@ export const putProfile = async (req, res, next) => {
   }
 };
 
+export const deleteProfile = async (req, res, next) => {
+  try {
+    if( req.user._id.toString() !== req.params.id) {
+      return res
+        .status(403)
+        .json({ message: "You are not allowed to delete this profile." });
+    }
+    
+    await userModel.findByIdAndUpdate(req.user.id, { active: false });
+    res.status(204).json({
+      message: "User deleted successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const getShowtimes = async (req, res, next) => {
   try {
     const showtimes = await fetchAllShowtimes();
@@ -145,42 +162,8 @@ export const getAvailableSeatsForShowtime = async (req, res, next) => {
 };
 
 //Should never update a booking when it's 24h before the showtime
-export const putBooking = async (req, res) => {
+export const putBooking = async (req, res, next) => {
   try {
-    // const { bookingId } = req.params || req.query; // Get booking ID from params or query
-    // const { showtimeId, seatId } = req.body;
-    // if (!bookingId) {
-    //   return res.status(400).json({ message: "Booking ID is required" });
-    // }
-
-    // // Check ownership
-    // const booking = await bookingModel.findById(bookingId);
-    // if (!booking) {
-    //   return res.status(404).json({ message: "Booking not found" });
-    // }
-    // if (booking.user.toString() !== req.user._id.toString()) {
-    //   return res
-    //     .status(403)
-    //     .json({ message: "You do not have permission to update this booking" });
-    // }
-    // // Always get the showtime date from the showtime referenced by the booking
-    // const showtime = await showtimeModel.findById(booking.showtime);
-    // if (!showtime) {
-    //   return res.status(404).json({ message: "Showtime not found" });
-    // }
-    // if (new Date(showtime.date) - new Date() < 72 * 60 * 60 * 1000) {
-    //   return res
-    //     .status(400)
-    //     .json({ message: "Cannot update booking 72h before showtime" });
-    // }
-    // if (booking.isUsed) {
-    //   return res.status(400).json({ message: "Ticket has already been used" });
-    // }
-    // // Update booking
-    // booking.showtime = showtimeId;
-    // booking.seats = seatId;
-    // await booking.save();
-
     const updatedBooking = await updateBooking(
       req.params.id,
       req.body,
@@ -191,12 +174,11 @@ export const putBooking = async (req, res) => {
       booking: updatedBooking,
     });
   } catch (error) {
-    console.error("Error updating booking:", error);
-    res.status(500).json({ message: "Internal server error" });
+    next(error);
   }
 };
 
-export const deleteBooking = async (req, res) => {
+export const deleteBooking = async (req, res, next) => {
   try {
     const deletedBooking = await deleteBookingTicket(
       req.params.id,
@@ -207,8 +189,7 @@ export const deleteBooking = async (req, res) => {
       booking: deletedBooking,
     });
   } catch (error) {
-    console.error("Error deleting booking:", error);
-    res.status(500).json({ message: "Internal server error" });
+    next(error);
   }
 };
 
