@@ -2,6 +2,7 @@ import crypto from "crypto";
 import { userModel } from "../models/userModel.js";
 import { ApiError } from "../utils/errorHandler.js";
 import { sendEmail } from "../utils/email.js";
+import * as userRepo from "../repositories/userRepository.js";
 import jwt from "jsonwebtoken";
 
 export const postSignup = async (req, res, next) => {

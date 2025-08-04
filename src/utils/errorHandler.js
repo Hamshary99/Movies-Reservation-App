@@ -15,6 +15,15 @@ export class ApiError extends Error {
   }
 }
 
+export class DatabaseError extends Error {
+  constructor(message, statusCode, type = "DB_error") {
+    super(message);
+    this.statusCode = statusCode;
+    this.name = "DatabaseError";
+    this.type = type;
+  }
+}
+
 export const handleError = (err, req, res, next) => {
   if (err instanceof ApiError) {
     return res.status(err.statusCode).json({
@@ -33,6 +42,18 @@ export const handleError = (err, req, res, next) => {
       timeStamp: new Date().toISOString(),
     });
   }
+
+  if (err instanceof DatabaseError) { 
+    return res.status(err.statusCode).json({
+      type: err.type,
+      code: err.code,
+      message: err.message,
+      statusCode: err.statusCode,
+      timeStamp: new Date().toISOString(),
+    });
+  }
+
+
   return res.status(err.statusCode || 500).json({
     type: "unexpected_error",
     message: err.message || "Unexpected error",
