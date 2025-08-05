@@ -53,6 +53,8 @@ A full-stack web application for reserving movie tickets, managing showtimes, an
 - `public/` - Static files and uploads
 - `package.json` - Project configuration
 
+## Project URL
+https://roadmap.sh/projects/movie-reservation-system
 ---
 
 For more details, see the code and comments in each folder.
