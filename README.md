@@ -67,6 +67,8 @@ Below is a list of all available API routes for the Movie Reservation App.
 | **POST** | `/reservations` | Create a reservation | `{ "movieId": "string", "seats": ["A1", "A2"] }` | `{ "message": "Reservation confirmed" }` |
 | **GET**  | `/reservations/:id` | Get reservation by ID | — | `{ "id": "string", "movie": { ... }, "seats": [...] }` |
 
+## Project URL
+https://roadmap.sh/projects/movie-reservation-system
 ---
 
 For more details, see the code and comments in each folder.
