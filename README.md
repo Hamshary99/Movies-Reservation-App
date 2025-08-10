@@ -111,29 +111,29 @@ Below is a list of all available API routes for the Movie Reservation App.
 ###  Profile
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
-| **GET**    | `/profile/:id` | User/Admin | Get a user's profile |
-| **PUT**    | `/profile/:id` | User | Update the logged-in user's profile |
-| **DELETE** | `/profile/:id` | User | Delete the logged-in user's profile |
+| **GET**    | `/user/profile/:id` | User/Admin | Get a user's profile |
+| **PUT**    | `/user/profile/:id` | User | Update the logged-in user's profile |
+| **DELETE** | `/user/profile/:id` | User | Delete the logged-in user's profile |
 
 
 ### Movies & Showtimes
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
-| **GET**    | `/movies` | Public | Get all movies |
-| **GET**    | `/movies/:id` | Public | Get details of a movie |
-| **GET**    | `/movies/:movieId/showtimes/:date` | Public | Get showtimes of a movie for a given date |
-| **GET**    | `/showtime/:id` | Public | Get details of a specific showtime |
-| **GET**    | `/showtime` | Public | Get all showtimes of a movie (via query params) |
-| **GET**    | `/showtime/:id/seats` | Public | Get available seats for a showtime |
+| **GET**    | `/user/movies` | Public | Get all movies |
+| **GET**    | `/user/movies/:id` | Public | Get details of a movie |
+| **GET**    | `/user/movies/:movieId/showtimes/:date` | Public | Get showtimes of a movie for a given date |
+| **GET**    | `/user/showtime/:id` | Public | Get details of a specific showtime |
+| **GET**    | `/user/showtime` | Public | Get all showtimes of a movie (via query params) |
+| **GET**    | `/user/showtime/:id/seats` | Public | Get available seats for a showtime |
 
 ### Bookings
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
-| **POST** | `/booking` | User | Create a booking |
-| **GET** | `/booking/:id` | User | Get details of a booking |
-| **GET** | `/booking` | User | Get all bookings of the logged-in user |
-| **PUT** | `/booking/:id` | User | Update a booking |
-| **DELETE** | `/booking/:id` | User | Delete a booking |
+| **POST** | `/user/booking` | User | Create a booking |
+| **GET** | `/user/booking/:id` | User | Get details of a booking |
+| **GET** | `/user/booking` | User | Get all bookings of the logged-in user |
+| **PUT** | `/user/booking/:id` | User | Update a booking |
+| **DELETE** | `/user/booking/:id` | User | Delete a booking |
 
 ---
 
@@ -142,14 +142,14 @@ Below is a list of all available API routes for the Movie Reservation App.
 ### Ticket Scanning & Booking Verification
 | Method | Endpoint                  | Auth Role     | Description |
 |--------|---------------------------|---------------|-------------|
-| **GET**   | `/scanTicketQR`            | Receptionist  | Scans a ticket QR code and marks it as used |
-| **GET**   | `/bookingDetails/:id`      | Receptionist  | Retrieves booking details by booking ID |
+| **GET**   | `/reception/scanTicketQR`            | Receptionist  | Scans a ticket QR code and marks it as used |
+| **GET**   | `/reception/bookingDetails/:id`      | Receptionist  | Retrieves booking details by booking ID |
 
 ### Showtimes
 | Method | Endpoint                  | Auth Role     | Description |
 |--------|---------------------------|---------------|-------------|
-| **GET**    | `/showtimes`               | Receptionist  | Retrieves all showtimes |
-| **GET**    | `/showtime/:id`            | Receptionist  | Retrieves details of a specific showtime |
+| **GET**    | `/reception/showtimes`               | Receptionist  | Retrieves all showtimes |
+| **GET**    | `/reception/showtime/:id`            | Receptionist  | Retrieves details of a specific showtime |
 
 
 ## Project URL
