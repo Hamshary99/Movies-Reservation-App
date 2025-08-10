@@ -13,8 +13,7 @@ import hpp from "hpp"; // To protect against HTTP Parameter Pollution attacks
 import adminRoutes from "./routes/adminRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import loginRoutes from "./routes/loginRoutes.js";
-// import visitorRoutes from './routes/visitorRoutes.js';
-// import receptionRoutes from './routes/receptionRoutes.js';
+import receptionRoutes from './routes/receptionRoutes.js';
 import webhookRouter from "./routes/webhookRoutes.js";
 import mongoose from "mongoose";
 import { handleError } from "./utils/errorHandler.js";
@@ -89,8 +88,7 @@ app.use((req, res, next) => {
 });
 
 app.use(loginRoutes);
-// app.use('/', visitorRoutes);
-// app.use('/reception', receptionRoutes);
+app.use('/reception', receptionRoutes);
 app.use("/admin", adminRoutes);
 app.use("/user", userRoutes);
 

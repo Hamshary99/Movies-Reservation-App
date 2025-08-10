@@ -12,7 +12,7 @@ import { authMiddleware, restrictTo } from "../middleware/auth.js"; // Could be 
 const router = express.Router();
 
 router.post('/login', postLogin);
-router.post('/signup', postSignup);
+router.post('/register', postSignup);
 // router.post('/logout', (req, res) => { });
 router.post('/forgotPassword', postForgotPassword);
 router.patch('/resetPassword/:token', ResetPassword);

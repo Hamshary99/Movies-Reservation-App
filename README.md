@@ -53,6 +53,20 @@ A full-stack web application for reserving movie tickets, managing showtimes, an
 - `public/` - Static files and uploads
 - `package.json` - Project configuration
 
+## API Documentation
+
+Below is a list of all available API routes for the Movie Reservation App.
+
+### Login and auth Routes
+| Method | Endpoint | Description | Request Body | Response |
+|--------|----------|-------------|--------------|----------|
+| **POST** | `/register` | Register a new user | `{ "name": "string", "email": "string", "password": "string", "confirmPassword": "string", "phone": "string", "role": "string" }` | `{ "message": "Signup successful", "user" }` |
+| **POST** | `/auth/login` | Login and get JWT token | `{ "email": "string", "password": "string" }` | `{ "token": "jwt-token", "user": { ... } }` |
+| **GET**  | `/movies` | Get all movies | — | `[ { "title": "Movie 1", "genre": "Action" }, ... ]` |
+| **GET**  | `/movies/:id` | Get movie by ID | — | `{ "title": "Movie 1", "genre": "Action" }` |
+| **POST** | `/reservations` | Create a reservation | `{ "movieId": "string", "seats": ["A1", "A2"] }` | `{ "message": "Reservation confirmed" }` |
+| **GET**  | `/reservations/:id` | Get reservation by ID | — | `{ "id": "string", "movie": { ... }, "seats": [...] }` |
+
 ---
 
 For more details, see the code and comments in each folder.
