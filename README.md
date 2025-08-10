@@ -60,8 +60,14 @@ Below is a list of all available API routes for the Movie Reservation App.
 ### Login and auth Routes
 | Method | Endpoint | Description | Request Body | Response |
 |--------|----------|-------------|--------------|----------|
-| **POST** | `/register` | Register a new user | `{ "name": "string", "email": "string", "password": "string", "confirmPassword": "string", "phone": "string", "role": "string" }` | `{ "message": "Signup successful", "user" }` |
-| **POST** | `/auth/login` | Login and get JWT token | `{ "email": "string", "password": "string" }` | `{ "token": "jwt-token", "user": { ... } }` |
+| **POST** | `/register` | Register a new user | `{ "name": "string", "email": "string", "password": "string", "confirmPassword": "string", "phone": "string", "role": "string" }` | `{ "message": "Signup successful", "user": { ... } }` |
+| **POST** | `/login` | Login and get JWT token | `{ "email": "string", "password": "string" }` | `{ "message": "Login successful", "user": { ... } }` |
+| **POST** | `/forgotPassword` | Forgot password button | `{ "email": "string" }` | `{ "message": "Password reset link sent to your email"` |
+| **PATCH** | `/resetPassword/:token` | Resetting password after taking the reset token via email | `{ "token": "string" }` | `{ "message": "Password reset successful", "user": { ... }` |
+| **PATCH** | `/changePassword` | Changing password in case if the user is already loggrd in | `{ "userID": "string", "currentPassword": "string", "newPassword": "string", "confirmNewPassword": "string" }` | `{ "message": "Password updated successfully", "user": { ... }` |
+
+
+
 | **GET**  | `/movies` | Get all movies | — | `[ { "title": "Movie 1", "genre": "Action" }, ... ]` |
 | **GET**  | `/movies/:id` | Get movie by ID | — | `{ "title": "Movie 1", "genre": "Action" }` |
 | **POST** | `/reservations` | Create a reservation | `{ "movieId": "string", "seats": ["A1", "A2"] }` | `{ "message": "Reservation confirmed" }` |
