@@ -53,25 +53,104 @@ A full-stack web application for reserving movie tickets, managing showtimes, an
 - `public/` - Static files and uploads
 - `package.json` - Project configuration
 
+
 ## API Documentation
 
 Below is a list of all available API routes for the Movie Reservation App.
 
-### Login and auth Routes
-| Method | Endpoint | Description | Request Body | Response |
-|--------|----------|-------------|--------------|----------|
-| **POST** | `/register` | Register a new user | `{ "name": "string", "email": "string", "password": "string", "confirmPassword": "string", "phone": "string", "role": "string" }` | `{ "message": "Signup successful", "user": { ... } }` |
-| **POST** | `/login` | Login and get JWT token | `{ "email": "string", "password": "string" }` | `{ "message": "Login successful", "user": { ... } }` |
-| **POST** | `/forgotPassword` | Forgot password button | `{ "email": "string" }` | `{ "message": "Password reset link sent to your email"` |
-| **PATCH** | `/resetPassword/:token` | Resetting password after taking the reset token via email | `{ "token": "string" }` | `{ "message": "Password reset successful", "user": { ... }` |
-| **PATCH** | `/changePassword` | Changing password in case if the user is already loggrd in | `{ "userID": "string", "currentPassword": "string", "newPassword": "string", "confirmNewPassword": "string" }` | `{ "message": "Password updated successfully", "user": { ... }` |
+## 🔐 Authentication Routes
+
+| Method | Endpoint                  | Description                                                   | Access       | Auth Required |
+|--------|---------------------------|---------------------------------------------------------------|--------------|--------------|
+| **POST**   | `/api/auth/login`          | Logs in a user and returns a JWT token                        | All roles    | No           |
+| **POST**   | `/api/auth/register`       | Registers a new user (default role: `user`)                   | All roles    | No           |
+| **POST**   | `/api/auth/forgotPassword` | Sends a password reset link to the user’s email               | All roles    | No           |
+| **PATCH**  | `/api/auth/resetPassword/:token` | Resets the password using a valid reset token          | All roles    | No           |
+| **PATCH**  | `/api/auth/changePassword` | Changes the logged-in user’s password without reset flow      | user, admin, receptionist | Yes          |
+
+---
+
+## 🛠 Admin Routes
+> All these routes require **authentication** and **admin role**.
+
+#### Movie Management
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| **GET** | `/admin/movie/:id` | Get a single movie by ID | ✅ |
+| **GET** | `/admin/movies` | Get all movies | ✅ |
+| **POST** | `/admin/movie` | Create a new movie | ✅ |
+| **PUT** | `/admin/movie/:id` | Update an existing movie | ✅ |
+| **DELETE** | `/admin/movie/:id` | Delete a specific movie | ✅ |
+| **DELETE** | `/admin/movies` | Delete all movies | ✅ |
+
+#### Hall Management
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| **POST** | `/admin/hall` | Create a new hall | ✅ |
+| **GET** | `/admin/halls` | Get all halls | ✅ |
+| **GET** | `/admin/hall/:id` | Get a single hall (includes seats) | ✅ |
+| **PUT** | `/admin/hall/:id` | Update an existing hall | ✅ |
+| **DELETE** | `/admin/hall/:id` | Delete a specific hall | ✅ |
+| **DELETE** | `/admin/halls` | Delete all halls | ✅ |
+
+#### Showtime Management
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| **POST** | `/admin/showtime` | Create a new showtime | ✅ |
+| **GET** | `/admin/showtimes` | Get all showtimes | ✅ |
+| **GET** | `/admin/showtime/:id` | Get a single showtime | ✅ |
+| **PUT** | `/admin/showtime/:id` | Update an existing showtime | ✅ |
+| **DELETE** | `/admin/showtime/:id` | Delete a specific showtime | ✅ |
+| **DELETE** | `/admin/showtimes` | Delete all showtimes | ✅ |
+
+---
+
+## 📌 User Routes
+> Not all of them require auth
+
+###  Profile
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| **GET**    | `/profile/:id` | User/Admin | Get a user's profile |
+| **PUT**    | `/profile/:id` | User | Update the logged-in user's profile |
+| **DELETE** | `/profile/:id` | User | Delete the logged-in user's profile |
 
 
+### Movies & Showtimes
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| **GET**    | `/movies` | Public | Get all movies |
+| **GET**    | `/movies/:id` | Public | Get details of a movie |
+| **GET**    | `/movies/:movieId/showtimes/:date` | Public | Get showtimes of a movie for a given date |
+| **GET**    | `/showtime/:id` | Public | Get details of a specific showtime |
+| **GET**    | `/showtime` | Public | Get all showtimes of a movie (via query params) |
+| **GET**    | `/showtime/:id/seats` | Public | Get available seats for a showtime |
 
-| **GET**  | `/movies` | Get all movies | — | `[ { "title": "Movie 1", "genre": "Action" }, ... ]` |
-| **GET**  | `/movies/:id` | Get movie by ID | — | `{ "title": "Movie 1", "genre": "Action" }` |
-| **POST** | `/reservations` | Create a reservation | `{ "movieId": "string", "seats": ["A1", "A2"] }` | `{ "message": "Reservation confirmed" }` |
-| **GET**  | `/reservations/:id` | Get reservation by ID | — | `{ "id": "string", "movie": { ... }, "seats": [...] }` |
+### Bookings
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| **POST** | `/booking` | User | Create a booking |
+| **GET** | `/booking/:id` | User | Get details of a booking |
+| **GET** | `/booking` | User | Get all bookings of the logged-in user |
+| **PUT** | `/booking/:id` | User | Update a booking |
+| **DELETE** | `/booking/:id` | User | Delete a booking |
+
+---
+
+## 🎟️ Receptionist Routes
+
+### Ticket Scanning & Booking Verification
+| Method | Endpoint                  | Auth Role     | Description |
+|--------|---------------------------|---------------|-------------|
+| **GET**   | `/scanTicketQR`            | Receptionist  | Scans a ticket QR code and marks it as used |
+| **GET**   | `/bookingDetails/:id`      | Receptionist  | Retrieves booking details by booking ID |
+
+### Showtimes
+| Method | Endpoint                  | Auth Role     | Description |
+|--------|---------------------------|---------------|-------------|
+| **GET**    | `/showtimes`               | Receptionist  | Retrieves all showtimes |
+| **GET**    | `/showtime/:id`            | Receptionist  | Retrieves details of a specific showtime |
+
 
 ## Project URL
 https://roadmap.sh/projects/movie-reservation-system
