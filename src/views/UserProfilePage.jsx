@@ -18,7 +18,7 @@ const UserProfilePage = () => {
         userId = parsed._id || parsed.id;
         // console.log("✅ userId from localStorage:", userId);
       } catch (e) {
-          // console.error("❌ Failed to parse user from localStorage:", e);
+          // console.error("Failed to parse user from localStorage:", e);
       }
       }
       // console.log("userId: ", userId);

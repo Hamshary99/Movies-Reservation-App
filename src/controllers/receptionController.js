@@ -1,4 +1,4 @@
-import { bookingModel } from "../models/bookingModel";
+import { bookingModel } from "../models/bookingModel.js";
 
 
 export const scanTicketQR = async (req, res) => {

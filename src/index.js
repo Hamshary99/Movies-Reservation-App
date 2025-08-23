@@ -59,6 +59,8 @@ app.use("/stripe", webhookRouter);
 
 // Reading and parsing JSON and URL-encoded data from req.body
 app.use(express.json({ limit: '10kb' })); // Limit the amount of data, to protect from DOS attacks
+// Serving static files from the 'public' directory
+app.use(express.urlencoded({ extended: true }));
 
 // Data sanitization against NoSQL query injection
 app.use(MongoSanitize());
@@ -73,13 +75,7 @@ app.use(
   })
 );
 
-// Serving static files from the 'public' directory
-app.use(express.urlencoded({ extended: true }));
 
-// API error handling
-app.use((err, req, res, next) => {
-  handleError(err, req, res, next);
-});
 
 // Middleware to log the request time
 app.use((req, res, next) => {
@@ -87,13 +83,19 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(loginRoutes);
+app.use('/auth', loginRoutes);
+app.use('/admin', adminRoutes);
+app.use('/user', userRoutes);
 app.use('/reception', receptionRoutes);
-app.use("/admin", adminRoutes);
-app.use("/user", userRoutes);
+
+// API error handling
+app.use((err, req, res, next) => {
+  handleError(err, req, res, next);
+});
 
 
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
+

@@ -74,7 +74,12 @@ export const deleteProfile = async (req, res, next) => {
       throw new ApiError("You are not allowed to delete this profile.", 403);
     }
     
+    // Preferred over deletion IF we needed to preserve the user
+    // What if the user accidentally deleted their profile, then they wanted to recover it. What will happen to the already booked tickets?
     await userModel.findByIdAndUpdate(req.user.id, { active: false });
+
+    // await userModel.findByIdAndDelete(req.user.id);
+
     res.status(204).json({
       message: "User deleted successfully",
     });

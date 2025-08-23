@@ -18,3 +18,5 @@ router.get('/scanTicketQR', authMiddleware, restrictTo('receptionist'), scanTick
 router.get('/bookingDetails/:id', authMiddleware, restrictTo('receptionist'), getBookingDetails);
 router.get('/showtimes', authMiddleware, restrictTo('receptionist'), getShowtimes);
 router.get('/showtime/:id', authMiddleware, restrictTo('receptionist'), getShowtime);
+
+export default router;

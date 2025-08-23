@@ -25,6 +25,7 @@ import {
 } from "react-router-dom";
 import LoginSignupPage from "./LoginSignupPage";
 import ProfilePage from "./ProfilePage";
+
 function getUserInfo() {
   try {
     const user = JSON.parse(localStorage.getItem("user"));
@@ -33,6 +34,7 @@ function getUserInfo() {
     return null;
   }
 }
+
 import CloseIcon from "@mui/icons-material/Close";
 import ShowtimesPage from "./ShowtimesPage";
 import BookingDetailsPage from "./BookingDetailsPage";
