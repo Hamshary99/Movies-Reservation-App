@@ -1,11 +1,14 @@
 import crypto from "crypto";
 import { userModel } from "../models/userModel.js";
-import { ApiError } from "../utils/errorHandler.js";
+import { ApiError, SQLError } from "../utils/errorHandler.js";
 import { sendEmail } from "../utils/email.js";
-import * as userRepo from "../repository/userRepository.js";
+import * as userRepo from "../repository/userRepositoryButGayer.js";
 import jwt from "jsonwebtoken";
 
-const tokenCookieCreator = (res, token) => { 
+import * as signupRepository from "../repository/userRepositoy.js";
+import * as userSchema from "../models/userSchema.js";
+
+const tokenCookieCreator = (res, token) => {
   let cookieOptions = {
     expires: new Date(
       Date.now() + process.env.JWT_COOKIE_EXPIRATION * 24 * 60 * 60 * 1000
@@ -17,57 +20,41 @@ const tokenCookieCreator = (res, token) => {
     cookieOptions.secure = true; // Ensures the cookie is sent over HTTPS only
   }
   res.cookie("jwt", token, cookieOptions);
-}
+};
 
 export const postSignup = async (req, res, next) => {
   try {
-    const { name, email, password, confirmPassword, phone } = req.body;
-    let { role } = req.body; // Role can be provided in the request body
+    const parsedData = userSchema.userSignUpSchema.safeParse(req.body);
 
-    if (!name || !email || !password || !confirmPassword) {
-      throw new ApiError("All fields are required", 400);
+    if (!parsedData.success) {
+      // console.log(parsedData.error);
+      const flat = parsedData.error.flatten();
+
+      let message = `Validation failed`;
+
+      if (flat.fieldErrors && Object.keys(flat.fieldErrors).length > 0) {
+        const missingFields = Object.keys(flat.fieldErrors);
+        message = `Validation failed: ${missingFields.join(", ")} field/s are missing or invalid`;
+      }
+      
+      throw new SQLError(message, 400, "SQL_error", flat.fieldErrors);
     }
 
-    if (password !== confirmPassword) {
-      throw new ApiError("Passwords do not match", 400);
-    }
+    const user = await signupRepository.createUser(parsedData.data);
 
-    if (!role) {
-      role = "user"; // Default role if not provided
-    }
-
-    // even if we used unique: true in the schema, we still need to check for existing users
-    // or else the handling of the error will not be as clean as this one and less user-friendly
-    const existingUser = await userModel.findOne({ email });
-    if (existingUser) {
-      throw new ApiError("User already exists", 400);
-    }
-
-    const user = await userModel.create({
-      name,
-      email,
-      password,
-      role,
-      phone: phone ? phone : undefined, // Only include phone if provided
-    });
-
-    // Generate a JWT token
     const token = jwt.sign(
-      { id: user._id, role: user.role },
+      { id: user.id, role: user.role },
       process.env.JWT_SECRET,
       {
         expiresIn: process.env.JWT_EXPIRATION,
       }
     );
-    // console.log("User signed up:", user.email);
 
     tokenCookieCreator(res, token);
-    user.password = undefined; // Remove password from the response for security reasons
-    user.passwordChangedAt = undefined; // Remove passwordChangedAt from the response for security reasons
 
     res.status(201).json({
       message: "Signup successful",
-      user
+      user,
     });
   } catch (error) {
     next(error);
@@ -76,37 +63,41 @@ export const postSignup = async (req, res, next) => {
 
 export const postLogin = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const parsedBody = userSchema.userLoginSchema.safeParse(req.body);
 
-    if (!email || !password) {
-      throw new ApiError("Email and password are required", 400);
+    if (!parsedBody.success) {
+      // console.log(parsedBody.error.flatten());
+      const flat = parsedBody.error.flatten();
+      let message = `Validation failed`
+      if (flat.fieldErrors && Object.keys(flat.fieldErrors).length > 0) {
+        const missingFields = Object.keys(flat.fieldErrors);
+        message = `Validation failed: ${missingFields.join(", ")} field/s are missing or invalid`;
+      }
+      throw new SQLError(message, 400, "SQL_error", flat.fieldErrors);
     }
+    const user = await signupRepository.getUserByEmail(
+      req.body.email,
+      req.body.password
+    );
 
-    const user = await userModel.findOne({ email }).select("+password"); // Include password field for comparison
-
-    // If the user doesn't exist, the compare password method will not work if it's in a declared constant so we put it in the if statement if user exists
-
-    // if (!user || !(await user.comparePassword(password, user.password))) {
-    //   return res.status(401).json({ message: "Invalid email or password" });
-    // }
-    if (!user || !(await user.comparePassword(password))) {
-      throw new ApiError("Invalid email or password", 401);
-    }
-
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: process.env.JWT_EXPIRATION,
-    });
-
-    // Send token to cookie
+    const token = jwt.sign(
+      {
+        id: user.id,
+        role: user.role,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: process.env.JWT_EXPIRATION,
+      }
+    );
     tokenCookieCreator(res, token);
-    user.password = undefined; // Remove password from the response for security reasons
-    user.passwordChangedAt = undefined; // Remove passwordChangedAt from the response for security reasons
 
     res.status(200).json({
       message: "Login successful",
       user,
     });
   } catch (error) {
+    // console.warn("The said ERROR: ", error);
     next(error);
   }
 };
@@ -126,7 +117,6 @@ export const postForgotPassword = async (req, res, next) => {
     // Generate a password reset token
     const resetToken = user.generatePasswordResetToken();
     await user.save({ validateBeforeSave: false }); // Save the user with the reset token without validation
-    
 
     // Create reset URL and send it via email
     // ${req.protocol} means http or https depending on the request
@@ -151,7 +141,10 @@ export const postForgotPassword = async (req, res, next) => {
       user.passwordResetToken = undefined;
       user.passwordResetExpires = undefined;
       await user.save({ validateBeforeSave: false });
-      throw new ApiError(`There was an error sending the email. Try again later. ${error.message}`, 500);
+      throw new ApiError(
+        `There was an error sending the email. Try again later. ${error.message}`,
+        500
+      );
     }
   } catch (error) {
     next(error);
@@ -211,7 +204,6 @@ export const ResetPassword = async (req, res, next) => {
   }
 };
 
-
 export const patchPassword = async (req, res, next) => {
   try {
     const { currentPassword, newPassword, confirmNewPassword, userID } =
@@ -255,3 +247,4 @@ export const patchPassword = async (req, res, next) => {
     next(error);
   }
 };
+

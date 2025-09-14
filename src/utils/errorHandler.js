@@ -24,6 +24,16 @@ export class DatabaseError extends Error {
   }
 }
 
+export class SQLError extends Error {
+  constructor(message, statusCode, type = "SQL_error", fieldErrors = null) {
+    super(message);
+    this.statusCode = statusCode;
+    this.name = "SQLError";
+    this.type = type;
+    this.fieldErrors = fieldErrors;
+  }
+}
+
 export const handleError = (err, req, res, next) => {
   if (err instanceof ApiError) {
     return res.status(err.statusCode).json({
@@ -49,6 +59,17 @@ export const handleError = (err, req, res, next) => {
       code: err.code,
       message: err.message,
       statusCode: err.statusCode,
+      timeStamp: new Date().toISOString(),
+    });
+  }
+
+  if(err instanceof SQLError) {
+    return res.status(err.statusCode).json({
+      type: err.type,
+      code: err.code,
+      message: err.message,
+      statusCode: err.statusCode,
+      fieldErrors: err.fieldErrors || null,
       timeStamp: new Date().toISOString(),
     });
   }

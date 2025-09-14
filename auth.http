@@ -1,0 +1,21 @@
+# Sign Up
+POST http://localhost:3000/auth/register
+Content-Type: application/json
+
+{
+    "name": "Mohammed Bahey el Deen",
+    "email": "amid@a7a.com",
+    "password": "Newpassword_99",
+    "confirmPassword": "Newpassword_99",
+    "phone": "+201552645236"
+}
+
+
+# # Login
+# POST http://localhost:3000/auth/login
+# Content-Type: application/json
+
+# {
+#     "email": "amid.com",
+#     "password": "Newpassword_99"
+# }
