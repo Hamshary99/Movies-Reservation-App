@@ -1,8 +1,8 @@
 import crypto from "crypto";
-import { userModel } from "../models/userModel.js";
+// import { userModel } from "../models/userModel.js";
 import { ApiError, SQLError } from "../utils/errorHandler.js";
 import { sendEmail } from "../utils/email.js";
-import * as userRepo from "../repository/userRepositoryButGayer.js";
+// import * as userRepo from "../repository/userRepositoryButGayer.js";
 import jwt from "jsonwebtoken";
 
 import * as signupRepository from "../repository/userRepositoy.js";
@@ -104,48 +104,11 @@ export const postLogin = async (req, res, next) => {
 
 export const postForgotPassword = async (req, res, next) => {
   try {
-    // Get user's email from the request body
-    const { email } = req.body;
-    if (!email) {
-      throw new ApiError("Email is required", 400);
-    }
-    const user = await userModel.findOne({ email });
-    if (!user) {
-      throw new ApiError("User with this email does not exist", 404);
-    }
+    const message = await signupRepository.userForgotPassword(req, res);
 
-    // Generate a password reset token
-    const resetToken = user.generatePasswordResetToken();
-    await user.save({ validateBeforeSave: false }); // Save the user with the reset token without validation
-
-    // Create reset URL and send it via email
-    // ${req.protocol} means http or https depending on the request
-    // req.get("host") gets the host from the request, e.g., localhost:3000
-    const resetURL = `${req.protocol}://${req.get("host")}/api/auth/reset-password/${resetToken}`;
-
-    const message = `Forgot your password?\n
-    Click on the link below to reset your password:\n\n${resetURL}\n\n
-    If you did not request this, please ignore this email.`;
-
-    try {
-      await sendEmail({
-        email: user.email,
-        subject: "Password Reset Request",
-        message,
-      });
-
-      res.status(200).json({
-        message: "Password reset link sent to your email",
-      });
-    } catch (error) {
-      user.passwordResetToken = undefined;
-      user.passwordResetExpires = undefined;
-      await user.save({ validateBeforeSave: false });
-      throw new ApiError(
-        `There was an error sending the email. Try again later. ${error.message}`,
-        500
-      );
-    }
+    return res.status(200).json({
+      message
+    });
   } catch (error) {
     next(error);
   }
@@ -153,47 +116,14 @@ export const postForgotPassword = async (req, res, next) => {
 
 export const ResetPassword = async (req, res, next) => {
   try {
-    // Get user by reset token
-    const { token } = req.params;
-    if (!token) {
-      throw new ApiError("Reset token is required", 400);
-    }
-    const { password, confirmPassword } = req.body;
-    if (!password || !confirmPassword) {
-      throw new ApiError("Password and confirm password are required", 400);
-    }
-    if (password !== confirmPassword) {
-      throw new ApiError("Passwords do not match", 400);
-    }
-
-    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
-
-    // If token isn't expired, find the user
-    const user = await userModel.findOne({
-      passwordResetToken: hashedToken,
-      passwordResetExpires: { $gt: Date.now() }, // Check if the token is not expired, by greater operator gt
-    });
-
-    if (!user) {
-      throw new ApiError("User not found or token is invalid", 404);
-    }
-
-    // Update the user's password
-    user.password = password;
-    user.passwordResetToken = undefined; // Clear the reset token
-    user.passwordResetExpires = undefined; // Clear the reset expiration date
-    await user.save();
-
-    // Check if password changed after token was issued
+    const user = await signupRepository.userResetPassword(req);
 
     // Log the user in
-    const loginToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    const loginToken = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
       expiresIn: process.env.JWT_EXPIRATION,
     });
 
     tokenCookieCreator(res, loginToken);
-    user.password = undefined; // Remove password from the response for security reasons
-    user.passwordChangedAt = undefined; // Remove passwordChangedAt from the response for security reasons
 
     res.status(200).json({
       message: "Password reset successful",
@@ -206,28 +136,10 @@ export const ResetPassword = async (req, res, next) => {
 
 export const patchPassword = async (req, res, next) => {
   try {
-    const { currentPassword, newPassword, confirmNewPassword, userID } =
-      req.body;
-
-    if (!currentPassword || !newPassword || !confirmNewPassword || !userID) {
-      throw new ApiError("All fields are required", 400);
-    }
-
-    if (newPassword !== confirmNewPassword) {
-      throw new ApiError("New passwords do not match", 400);
-    }
-
-    const user = await userRepo.findById(userID).select("+password"); // Include password field for comparison
-
-    if (!user.comparePassword(currentPassword) || !user) {
-      throw new ApiError("Incorrect email or password", 401);
-    }
-
-    user.password = newPassword; // Update the password
-    await user.save();
+    const user = await signupRepository.userPatchPassword(req);
 
     const token = jwt.sign(
-      { id: user._id, role: user.role },
+      { id: user.id, role: user.role },
       process.env.JWT_SECRET,
       {
         expiresIn: process.env.JWT_EXPIRATION,
@@ -236,8 +148,6 @@ export const patchPassword = async (req, res, next) => {
 
     // Send token to cookie
     tokenCookieCreator(res, token);
-    user.password = undefined; // Remove password from the response for security reasons
-    user.passwordChangedAt = undefined; // Remove passwordChangedAt from the response for security reasons
 
     res.status(200).json({
       message: "Password updated successfully",

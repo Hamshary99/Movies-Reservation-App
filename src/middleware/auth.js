@@ -1,5 +1,8 @@
 import jwt from "jsonwebtoken";
-import { userModel } from "../models/userModel.js";
+// import { userModel } from "../models/userModel.js";
+import * as userSchema from "../models/userSchema.js";
+import { eq } from "drizzle-orm";
+import { db } from "../repository/index.js";
 
 export const authMiddleware = async (req, res, next) => {
   try {
@@ -14,6 +17,7 @@ export const authMiddleware = async (req, res, next) => {
     }
 
     // console.log("Token:", token);
+    console.log("Token: ", token);
 
     if (!token) {
       return res.status(401).json({ message: "You're not logged in" });
@@ -24,18 +28,19 @@ export const authMiddleware = async (req, res, next) => {
     // console.log("Decoded token:", decoded);
     
     // Check if the user exists in the database (or changed password after token was issued)
-    const currentUser = await userModel.findById(decoded.id);
-    if (!currentUser) {
-      return res.status(401).json({ message: "The user belonging to this token does no longer exist" });
-    }
+    const currentUser = await db
+      .select()
+      .from(userSchema.usersTable)
+      .where(eq(userSchema.usersTable.id, decoded.id))
+      .limit(1);
 
     // If the user has changed their password after the token was issued, invalidate the token
-    if (currentUser.hasPasswordChangedAfterTokenIssued(decoded.iat)) {
-      return res.status(401).json({ message: "User recently changed password; please log in again." });
-    }
+    // if (currentUser.) {
+    //   return res.status(401).json({ message: "User recently changed password; please log in again." });
+    // }
 
     // Attach the user to the request object for further use in the application
-    req.user = currentUser;
+    req.user = currentUser[0];
     // console.log("User:", req.user); 
     next();
   } catch (error) {

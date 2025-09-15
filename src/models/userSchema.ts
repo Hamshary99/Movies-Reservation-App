@@ -48,6 +48,7 @@ export type UserWithoutPassword = Omit<
   | "updatedAt"
 >;
 export type UserWithToken = UserWithoutPassword & { token: string }; // May not be needed
+export type UserEmailOnly = Pick<User, "email">;
 
 export const userInsertSchema = createInsertSchema(usersTable);
 export const userUpdateSchema = createUpdateSchema(usersTable);

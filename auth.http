@@ -1,21 +1,50 @@
 # Sign Up
-POST http://localhost:3000/auth/register
-Content-Type: application/json
+# POST http://localhost:3000/auth/register
+# Content-Type: application/json
 
-{
-    "name": "Mohammed Bahey el Deen",
-    "email": "amid@a7a.com",
-    "password": "Newpassword_99",
-    "confirmPassword": "Newpassword_99",
-    "phone": "+201552645236"
-}
+# {
+#     "name": "Mohammed Bahey el Deen",
+#     "email": "amid@a7a.com",
+#     "password": "Newpassword_99",
+#     "confirmPassword": "Newpassword_99",
+#     "phone": "+201552645236"
+# }
 
 
-# # Login
+# Login
 # POST http://localhost:3000/auth/login
 # Content-Type: application/json
 
 # {
-#     "email": "amid.com",
-#     "password": "Newpassword_99"
+#     "email": "amid@a7a.com",
+#     "password": "Hamshar-99"
 # }
+
+# Forgot Password
+# POST http://localhost:3000/auth/forgotPassword
+# Content-Type: application/json
+
+# {
+#     "email": "amid@a7a.com"
+# }
+
+# ResetPassword
+# PATCH http://localhost:3000/auth/resetPassword/9c703677d95b9ca20d12f1d560fa93ce5add696d87ce281963900becefb7d3dc
+# Content-Type: application/json
+
+# {
+#     "password": "Hamshar-99",
+#     "confirmPassword": "Hamshar-99"
+# }
+
+# Change Password
+PATCH http://localhost:3000/auth/changePassword
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImE2MDg5YjYyLWMwNWEtNDU5OC04NmRiLWQ5MmViYmE2ZTBlOCIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzU3OTczODMxLCJleHAiOjE3NTgxNDY2MzF9.YCeZPueTft6hFSkrDnKlpu-RVngOgafSFgwq0oW2tDg
+
+{
+    "userID": "a6089b62-c05a-4598-86db-d92ebba6e0e8",
+    "currentPassword": "Hamshar-99",
+    "newPassword": "amido1999",
+    "confirmPassword": "amido1999"
+}
