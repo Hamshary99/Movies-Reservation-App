@@ -22,40 +22,33 @@ import {
 
 import { authMiddleware, restrictTo } from "../middleware/auth.js";
 
+import { validate } from "../middleware/validate.js";
+import * as schemas from "../models/index.js"
+
 const router = express.Router();
 
 // Movie routes
 router.get("/movie/:id", authMiddleware, restrictTo("admin"), getMovie);
-router.get("/movies", authMiddleware, restrictTo("admin"), getAllMovies);
+router.get("/movie", authMiddleware, restrictTo("admin"), getAllMovies);
 router.post("/movie", authMiddleware, restrictTo("admin"), postMovie);
 router.put("/movie/:id", authMiddleware, restrictTo("admin"), putMovie);
 router.delete("/movie/:id", authMiddleware, restrictTo("admin"), deleteMovie);
-router.delete("/movies", authMiddleware, restrictTo("admin"), deleteAllMovies);
+router.delete("/movie", authMiddleware, restrictTo("admin"), deleteAllMovies);
 
 // Hall routes
-router.post("/hall", authMiddleware, restrictTo("admin"), postHall);
-router.get("/halls", authMiddleware, restrictTo("admin"), getHalls);
+router.post("/hall", authMiddleware, restrictTo("admin"), validate(schemas.hallSchema.hallDataVerify), postHall);
+router.get("/hall", authMiddleware, restrictTo("admin"), getHalls);
 router.get("/hall/:id", authMiddleware, restrictTo("admin"), getHall);
-router.put("/hall/:id", authMiddleware, restrictTo("admin"), putHall);
+router.put("/hall/:id", authMiddleware, restrictTo("admin"), validate(schemas.hallSchema.hallDataVerify), putHall);
 router.delete("/hall/:id", authMiddleware, restrictTo("admin"), deleteHall);
-router.delete("/halls", authMiddleware, restrictTo("admin"), deleteAllHalls);
+router.delete("/hall", authMiddleware, restrictTo("admin"), deleteAllHalls);
 
 // Showtime routes
 router.post("/showtime", authMiddleware, restrictTo("admin"), postShowtime);
-router.get("/showtimes", authMiddleware, restrictTo("admin"), getShowtimes);
+router.get("/showtime", authMiddleware, restrictTo("admin"), getShowtimes);
 router.get("/showtime/:id", authMiddleware, restrictTo("admin"), getShowtime);
 router.put("/showtime/:id", authMiddleware, restrictTo("admin"), putShowtime);
-router.delete(
-  "/showtime/:id",
-  authMiddleware,
-  restrictTo("admin"),
-  deleteShowtime
-);
-router.delete(
-  "/showtimes",
-  authMiddleware,
-  restrictTo("admin"),
-  deleteAllShowtimes
-);
+router.delete("/showtime/:id", authMiddleware, restrictTo("admin"), deleteShowtime);
+router.delete("/showtime", authMiddleware, restrictTo("admin"), deleteAllShowtimes);
 
 export default router;

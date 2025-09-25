@@ -1,6 +1,6 @@
 {
-  "id": "d25f6434-b29e-463f-a755-e7786a679e63",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "a8ad1180-34cb-4f95-be73-93c18fd9b498",
+  "prevId": "e5db5eea-fc49-4d36-8493-3b4d2794d1a5",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -122,9 +122,16 @@
         },
         "hall": {
           "name": "hall",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
+        },
+        "is_available": {
+          "name": "is_available",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
         },
         "booked": {
           "name": "booked",
@@ -169,18 +176,6 @@
         "name": {
           "name": "name",
           "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "rows": {
-          "name": "rows",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "columns": {
-          "name": "columns",
-          "type": "integer",
           "primaryKey": false,
           "notNull": true
         }

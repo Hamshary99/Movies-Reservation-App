@@ -1,6 +1,6 @@
 {
-  "id": "d25f6434-b29e-463f-a755-e7786a679e63",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "d734731f-57c5-4058-b64c-02524e1057f5",
+  "prevId": "a8ad1180-34cb-4f95-be73-93c18fd9b498",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -122,9 +122,16 @@
         },
         "hall": {
           "name": "hall",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
+        },
+        "is_available": {
+          "name": "is_available",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
         },
         "booked": {
           "name": "booked",
@@ -171,24 +178,20 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
-        },
-        "rows": {
-          "name": "rows",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "columns": {
-          "name": "columns",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
         }
       },
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "halls_name_unique": {
+          "name": "halls_name_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "name"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false

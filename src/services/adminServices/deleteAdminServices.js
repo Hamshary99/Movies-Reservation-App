@@ -6,6 +6,8 @@ import { bookingModel } from "../../models/bookingModel.js";
 
 import { ApiError } from "../../utils/errorHandler.js";
 
+import * as hallRepository from "../../repository/hallRepository.js";
+
 export const removeMovie = async (id) => {
   try {
     if (!id) {
@@ -39,17 +41,19 @@ export const removeAllMovies = async () => {
 
 export const removeHall = async (id) => {
   try {
-    if (!id) {
-      throw new ApiError("Hall ID is required", 400);
-    }
-    const hall = await hallModel.findByIdAndDelete(id);
-    if (!hall) {
-      throw new ApiError("Hall not found", 404);
-    }
+    // if (!id) {
+    //   throw new ApiError("Hall ID is required", 400);
+    // }
+    // const hall = await hallModel.findByIdAndDelete(id);
+    // if (!hall) {
+    //   throw new ApiError("Hall not found", 404);
+    // }
 
-    await seatModel.deleteMany({ hall: id });
-    await showtimeModel.deleteMany({ hall: id });
-    await bookingModel.deleteMany({ showtime: showtime.hall.id });
+    // await seatModel.deleteMany({ hall: id });
+    // await showtimeModel.deleteMany({ hall: id });
+    // await bookingModel.deleteMany({ showtime: showtime.hall.id });
+
+    const hall = await hallRepository.deleteHall(id);
     
     return hall;
   } catch (error) {
@@ -62,9 +66,7 @@ export const removeHall = async (id) => {
 
 export const removeAllHalls = async () => {
   try {
-    const halls = await hallModel.deleteMany({});
-    await seatModel.deleteMany({});
-    await bookingModel.deleteMany({});
+    const halls = await hallRepository.deleteHalls();
     return halls;
   } catch (error) {
     throw new ApiError(

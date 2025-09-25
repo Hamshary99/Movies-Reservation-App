@@ -5,8 +5,36 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1757786567006,
-      "tag": "0000_tidy_jean_grey",
+      "when": 1758212589669,
+      "tag": "0000_minor_golden_guardian",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1758213091257,
+      "tag": "0001_chubby_ser_duncan",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1758214219768,
+      "tag": "0002_short_demogoblin",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1758221833171,
+      "tag": "0003_cynical_warlock",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1758223079303,
+      "tag": "0004_green_yellowjacket",
       "breakpoints": true
     }
   ]

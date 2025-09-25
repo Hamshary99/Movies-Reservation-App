@@ -1,4 +1,5 @@
 import express from "express";
+import { Request, Response, NextFunction } from "express";
 
 import dotenv from "dotenv";
 dotenv.config();
@@ -7,7 +8,7 @@ import cors from "cors";
 import rateLimit from "express-rate-limit"; // To avoid brute force attacks
 import helmet from "helmet"; // To set security-related HTTP headers
 import MongoSanitize from "express-mongo-sanitize"; // To sanitize user input against NoSQL query injection
-import xss from "xss-clean"; // To sanitize user input against XSS attacks
+// import xss from "xss-clean"; // To sanitize user input against XSS attacks
 import hpp from "hpp"; // To protect against HTTP Parameter Pollution attacks
 
 import adminRoutes from "./routes/adminRoutes.js";
@@ -21,7 +22,7 @@ import { handleError } from "./utils/errorHandler.js";
 
 // Connect to MongoDB
 mongoose
-  .connect(process.env.MONGODB_URI)
+  .connect(process.env.MONGODB_URI!)
   .then(() => console.log("MongoDB connected successfully"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
@@ -63,7 +64,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(MongoSanitize());
 
 // Data sanitization against XSS attacks
-app.use(xss());
+// app.use(xss());
 
 // Prevent HTTP Parameter Pollution attacks
 app.use(
@@ -75,8 +76,8 @@ app.use(
 
 
 // Middleware to log the request time
-app.use((req, res, next) => {
-  req.requestTime = new Date().toISOString();
+app.use((req: Request, res: Response, next: NextFunction) => {
+  // req.timestamp = new Date().toISOString();
   next();
 });
 
@@ -86,7 +87,8 @@ app.use('/user', userRoutes);
 app.use('/reception', receptionRoutes);
 
 // API error handling
-app.use((err, req, res, next) => {
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  console.error(err);
   handleError(err, req, res, next);
 });
 

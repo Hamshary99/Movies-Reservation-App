@@ -2,6 +2,7 @@
   "compilerOptions": {
     "target": "ES2020",
     "module": "ESNext",
+    "lib": ["ES2020"],
     "moduleResolution": "Node",
     "outDir": "./dist",
     "rootDir": "./src",
@@ -12,7 +13,11 @@
     "resolveJsonModule": true,
     "verbatimModuleSyntax": false,
     "allowJs": true, // <--- allow importing .js
-    "checkJs": false // <--- don’t type-check .js
+    "checkJs": false, // <--- don’t type-check .js
+    // "noEmit": true,
+    "noEmit": false,
+
+    // "allowImportingTsExtensions": true
   },
   "ts-node": {
     "esm": true,

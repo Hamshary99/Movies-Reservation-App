@@ -7,11 +7,12 @@ export class StripeError extends Error {
   }
 }
 export class ApiError extends Error {
-  constructor(message, statusCode, type = "api_error") {
+  constructor(message, statusCode, type = "api_error", details = null) {
     super(message);
     this.statusCode = statusCode;
     this.name = "ApiError";
     this.type = type;
+    this.details = details;
   }
 }
 
@@ -37,14 +38,17 @@ export class SQLError extends Error {
 export const handleError = (err, req, res, next) => {
   if (err instanceof ApiError) {
     return res.status(err.statusCode).json({
-      type: "api_error",
+      status: "error",
+      type: err.type,
       message: err.message,
+      details: err.details,
       statusCode: err.statusCode,
       timeStamp: new Date().toISOString(),
     });
   }
   if (err instanceof StripeError) {
     return res.status(err.statusCode).json({
+      status: "error",
       type: err.type,
       code: err.code,
       message: err.message,
@@ -55,6 +59,7 @@ export const handleError = (err, req, res, next) => {
 
   if (err instanceof DatabaseError) { 
     return res.status(err.statusCode).json({
+      status: "error",
       type: err.type,
       code: err.code,
       message: err.message,
@@ -65,6 +70,7 @@ export const handleError = (err, req, res, next) => {
 
   if(err instanceof SQLError) {
     return res.status(err.statusCode).json({
+      status: "error",
       type: err.type,
       code: err.code,
       message: err.message,
@@ -76,6 +82,7 @@ export const handleError = (err, req, res, next) => {
 
 
   return res.status(err.statusCode || 500).json({
+    status: "error",
     type: "unexpected_error",
     message: err.message || "Unexpected error",
     statusCode: err.statusCode || 500,

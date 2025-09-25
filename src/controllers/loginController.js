@@ -1,10 +1,7 @@
 import crypto from "crypto";
-// import { userModel } from "../models/userModel.js";
 import { ApiError, SQLError } from "../utils/errorHandler.js";
 import { sendEmail } from "../utils/email.js";
-// import * as userRepo from "../repository/userRepositoryButGayer.js";
 import jwt from "jsonwebtoken";
-
 import * as signupRepository from "../repository/userRepositoy.js";
 import * as userSchema from "../models/userSchema.js";
 

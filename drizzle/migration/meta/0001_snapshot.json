@@ -1,6 +1,6 @@
 {
-  "id": "d25f6434-b29e-463f-a755-e7786a679e63",
-  "prevId": "00000000-0000-0000-0000-000000000000",
+  "id": "48084ce2-87c6-4ca7-b180-1b739ef5e1cd",
+  "prevId": "d25f6434-b29e-463f-a755-e7786a679e63",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -122,7 +122,7 @@
         },
         "hall": {
           "name": "hall",
-          "type": "serial",
+          "type": "integer",
           "primaryKey": false,
           "notNull": true
         },

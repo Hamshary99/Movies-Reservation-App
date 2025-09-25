@@ -28,6 +28,7 @@ import {
   removeShowtime,
   removeAllShowtimes,
 } from "../services/adminServices/deleteAdminServices.js";
+import { response } from "express";
 
 
 export const postMovie = async (req, res, next) => {
@@ -46,7 +47,11 @@ export const getMovie = async (req, res, next) => {
     const getMovie = await fetchMovie(req.params.id);
     return res
       .status(200)
-      .json({ message: "Movie fetched successfully", movie: getMovie });
+      .json({
+        status: "success",
+        message: "Movie fetched successfully",
+        movie: getMovie
+      });
   } catch (error) {
     next(error);
   }
@@ -57,7 +62,11 @@ export const getAllMovies = async (req, res, next) => {
     const getAllMovies = await fetchAllMovies();
     res
       .status(200)
-      .json({ message: "All movies fetched successfully", movie: getAllMovies });
+      .json({
+        status: "success",
+        message: "All movies fetched successfully",
+        movie: getAllMovies
+      });
   } catch (error) {
     next(error);
   }
@@ -68,7 +77,11 @@ export const putMovie = async (req, res, next) => {
     const updatedMovie = await updateMovie(req.params.id, req.body);
     res
       .status(200)
-      .json({ message: "Movie updated successfully", movie: updatedMovie });
+      .json({
+        status: "success",
+        message: "Movie updated successfully",
+        movie: updatedMovie
+      });
   } catch (error) {
     next(error);
   }
@@ -79,7 +92,11 @@ export const deleteMovie = async (req, res, next) => {
     const removedmovie = await removeMovie(req.params.id);
     res
       .status(204)
-      .json({ message: "Movie deleted successfully", movie: removedmovie });
+      .json({
+        status: "success",
+        message: "Movie deleted successfully",
+        movie: removedmovie
+      });
   } catch (error) {
     next(error);
   }
@@ -90,7 +107,11 @@ export const deleteAllMovies = async (req, res, next) => {
     const deletedMovies = await removeAllMovies();
     res
       .status(204)
-      .json({ message: "All movies deleted successfully", movie: deletedMovies });
+      .json({
+        status: "success",
+        message: "All movies deleted successfully",
+        movie: deletedMovies
+      });
   } catch (error) {
     next(error);
   }
@@ -98,10 +119,15 @@ export const deleteAllMovies = async (req, res, next) => {
 
 export const postHall = async (req, res, next) => {
   try {
-    const hall = await createHall(req.body);
+    const { hall, seats } = await createHall(req.body);
     res
       .status(201)
-      .json({ message: "Hall created successfully", hall });
+      .json({
+        status: "success",
+        message: "Hall created successfully",
+        hall,
+        seats
+      });
   } catch (error) {
     next(error);
   }
@@ -112,7 +138,12 @@ export const getHalls = async (req, res, next) => {
     const halls = await fetchAllHalls();
     res
       .status(200)
-      .json({ message: "All halls fetched successfully", hall: halls });
+      .json({
+        status: "success",
+        message: "All halls fetched successfully",
+        hall: halls,
+        seats: null
+      });
   } catch (error) {
     next(error);
   }
@@ -120,12 +151,16 @@ export const getHalls = async (req, res, next) => {
 
 export const getHall = async (req, res, next) => {
   try {
-    const hall = await fetchHall(req.params.id);
-    const seatsOfHall = await fetchSeatsOfHall(req.params.id);
-    // seatsOfHall = seatsOfHall.map((seat) => seat._id);
+    const { hall, seats } = await fetchHall(req.params.id);
+    // const seatsOfHall = seats.map((seat) => seat._id);
     res
       .status(200)
-      .json({ message: "Hall fetched successfully", hall, seatsOfHall });
+      .json({
+        status: "success",
+        message: "Hall fetched successfully",
+        hall,
+        seats
+      });
   } catch (error) {
     next(error);
   }
@@ -133,10 +168,16 @@ export const getHall = async (req, res, next) => {
 
 export const putHall = async (req, res, next) => {
   try {
-    const updatedHall = await updateHall(req.params.id, req.body);
+    const { hall, seats } = await updateHall(req.params.id, req.body);
+    
     res
       .status(200)
-      .json({ message: "Hall updated successfully", hall: updatedHall });
+      .json({
+        status: "success",
+        message: "Hall updated successfully",
+        hall,
+        seats
+      });
   } catch (error) {
     next(error);
   }
@@ -144,10 +185,15 @@ export const putHall = async (req, res, next) => {
 
 export const deleteHall = async (req, res, next) => {
   try {
-    const deletedHall = await removeHall(req.params.id);
+    const { hall, seats } = await removeHall(req.params.id);
     res
       .status(204)
-      .send({ message: "Hall deleted successfully", hall: deletedHall });
+      .send({
+        status: "success",
+        message: "Hall deleted successfully",
+        hall,
+        seats: null
+      });
   } catch (error) {
     next(error);
   }
@@ -158,7 +204,12 @@ export const deleteAllHalls = async (req, res, next) => {
     const deletedHalls = await removeAllHalls();
     res
       .status(204)
-      .json({ message: "All halls deleted successfully", hall: deletedHalls });
+      .json({
+        status: "success",
+        message: "All halls deleted successfully",
+        hall: deletedHalls,
+        seats: null
+      });
   } catch (error) {
     next(error);
   }
@@ -169,7 +220,11 @@ export const postShowtime = async (req, res, next) => {
     const showtime = await createShowtime(req.body);
     res
       .status(201)
-      .json({ message: "Showtime created successfully", showtime });
+      .json({
+        status: "success",
+        message: "Showtime created successfully",
+        showtime
+      });
   } catch (error) {
     next(error);
   }
@@ -178,7 +233,11 @@ export const postShowtime = async (req, res, next) => {
 export const getShowtimes = async (req, res, next) => {
   try {
     const showtimes = await fetchAllShowtimes();
-    res.status(200).json({message: "All showtimes fetched successfully", showtime: showtimes});
+    res.status(200).json({
+      status: "success",
+      message: "All showtimes fetched successfully",
+      showtime: showtimes
+    });
   } catch (error) {
     next(error);
   }
@@ -189,7 +248,11 @@ export const getShowtime = async (req, res, next) => {
     const showtime = await fetchShowtime(req.params.id);
     res
       .status(200)
-      .json({ message: "Showtime fetched successfully", showtime });
+      .json({
+        status: "success",
+        message: "Showtime fetched successfully",
+        showtime
+      });
   } catch (error) {
     next(error);
   }
@@ -200,7 +263,11 @@ export const putShowtime = async (req, res, next) => {
     const updatedShowtime = await updateShowtime(req.params.id, req.body);
     res
       .status(200)
-      .json({ message: "Showtime updated successfully", showtime: updatedShowtime });
+      .json({
+        status: "success",
+        message: "Showtime updated successfully",
+        showtime: updatedShowtime
+      });
   } catch (error) {
     next(error);
   }
@@ -211,7 +278,11 @@ export const deleteShowtime = async (req, res, next) => {
     const deletedShowtime = await removeShowtime(req.params.id);
     res
       .status(204)
-      .send({ message: "Showtime deleted successfully", showtime: deletedShowtime });
+      .send({
+        status: "success",
+        message: "Showtime deleted successfully",
+        showtime: deletedShowtime
+      });
   } catch (error) {
     next(error);
   }
@@ -222,7 +293,11 @@ export const deleteAllShowtimes = async (req, res, next) => {
     const deletedShowtimes = await removeAllShowtimes();
     res
       .status(204)
-      .json({ message: "All showtimes deleted successfully", showtime: deletedShowtimes });
+      .json({
+        status: "success",
+        message: "All showtimes deleted successfully",
+        showtime: deletedShowtimes
+      });
   } catch (error) {
     next(error);
   }

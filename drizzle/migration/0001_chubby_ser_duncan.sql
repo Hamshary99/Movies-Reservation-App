@@ -1,0 +1,1 @@
+ALTER TABLE "seats" ALTER COLUMN "hall" SET DATA TYPE integer;

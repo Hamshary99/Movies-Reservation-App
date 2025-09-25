@@ -1,6 +1,5 @@
-import { email, z, string } from "zod";
+import { z } from "zod";
 import {
-  integer,
   text,
   uuid,
   timestamp,
@@ -103,18 +102,3 @@ export const adminUserUpdateSchema = userUpdateSchema.extend({
   role: z.enum(roles).optional(), // only admins can pass role, so in user routes force role to be "user"
 });
 
-// export const userSchemaParser = userInsertSchema.extend({
-//   name: z.string().min(2, "Name should be at least 2 characters long"),
-//   email: z.string().email("Invalid email address"),
-//   password: z.string().min(6, "Password should be at least 6 characters long"),
-//   // confirmPassword: z.string(),
-//   role: z.enum(roles),
-//   phone: z
-//     .string()
-//     .regex(/^\+?[0-9]{7,15}$/, "Invalid phone number")
-//     .optional(),
-//   passwordChangedAt: z.date().optional(),
-//   passwordResetToken: z.string().optional(),
-//   passwordResetExpires: z.date().optional(),
-//   active: z.boolean().optional(),
-// });

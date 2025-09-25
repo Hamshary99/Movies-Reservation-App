@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { eq, gt, gte, and, SQL } from "drizzle-orm";
 import * as userSchema from "../models/userSchema.js";
 import bcrypt from "bcrypt";
-import { db } from "./index.js";
+import { db } from "./dbConfig.js";
 import { SQLError, ApiError } from "../utils/errorHandler.js";
 import crypto from "crypto";
 import { sendEmail } from "../utils/email.js";
@@ -85,8 +85,11 @@ export const userForgotPassword = async (
 
     // Generate reset token
     const resetToken = crypto.randomBytes(64).toString("hex");
-    const hashedToken = crypto.createHash("sha256").update(resetToken).digest("hex");
-    
+    const hashedToken = crypto
+      .createHash("sha256")
+      .update(resetToken)
+      .digest("hex");
+
     const user = await db
       .update(userSchema.usersTable)
       .set({
@@ -151,7 +154,7 @@ If you did not request this, you can safely ignore this email.
 };
 
 export const userResetPassword = async (
-  req: Request,
+  req: Request
 ): Promise<userSchema.UserWithoutPassword> => {
   try {
     const token = req.params.token;
@@ -170,7 +173,6 @@ export const userResetPassword = async (
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
 
     // Check token expiration
     const user = await db
@@ -216,8 +218,9 @@ export const userResetPassword = async (
   }
 };
 
-
-export const userPatchPassword = async (req: Request) : Promise<userSchema.UserWithoutPassword> => {
+export const userPatchPassword = async (
+  req: Request
+): Promise<userSchema.UserWithoutPassword> => {
   try {
     const { userID, currentPassword, newPassword, confirmPassword } = req.body;
     console.log("Request body:", req.body);
@@ -231,7 +234,7 @@ export const userPatchPassword = async (req: Request) : Promise<userSchema.UserW
       .from(userSchema.usersTable)
       .where(eq(userSchema.usersTable.id, userID))
       .limit(1);
-    
+
     if (!fetchedUser[0]) {
       throw new ApiError("User not found", 404);
     }
@@ -239,9 +242,9 @@ export const userPatchPassword = async (req: Request) : Promise<userSchema.UserW
     const isPasswordValid = await bcrypt.compare(
       currentPassword,
       fetchedUser[0].password
-    )
+    );
 
-    if(!isPasswordValid) {
+    if (!isPasswordValid) {
       throw new ApiError("Current password is incorrect", 400);
     }
 
@@ -266,7 +269,7 @@ export const userPatchPassword = async (req: Request) : Promise<userSchema.UserW
         phone: userSchema.usersTable.phone || null,
         active: userSchema.usersTable.active,
       });
-    
+
     if (!user[0]) {
       throw new SQLError("Failed to update password", 500, "SQL_error");
     }
@@ -275,4 +278,4 @@ export const userPatchPassword = async (req: Request) : Promise<userSchema.UserW
   } catch (error) {
     throw error;
   }
-}
+};

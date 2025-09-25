@@ -2,6 +2,9 @@ import { showtimeModel } from "../../models/showtimeModel.js";
 import { movieModel } from "../../models/movieModel.js";
 import { hallModel } from "../../models/hallModel.js";
 
+import * as hallRepository from "../../repository/hallRepository.js";
+
+
 import { ApiError } from "../../utils/errorHandler.js";
 
 export const updateMovie = async (id, data) => {
@@ -41,26 +44,27 @@ export const updateMovie = async (id, data) => {
 export const updateHall = async (id, data) => {
   try {
     if (!id) {
-      throw new ApiError("Movie ID is required", 400);
+      throw new ApiError("Hall ID is required", 400);
     }
     const { hallName, rows, columns } = data;
 
-    const hall = await hallModel.findByIdAndUpdate(
+    // drizzle handles id as strings so we need to convert it to number
+    id = Number(id);
+    console.log("updateHall params:", {
       id,
-      {
-        name: hallName,
-        rows,
-        columns,
-      },
-      {
-        new: true,
-        runValidators: true,
-      }
+      hallName,
+      rows,
+      columns,
+      typeOfId: typeof id,
+    });
+    const { hall, seats } = await hallRepository.updateHall(
+      id,
+      hallName,
+      rows,
+      columns
     );
-    if (!hall) {
-      throw new ApiError("Hall not found", 404);
-    }
-    return hall;
+
+    return { hall, seats };
   } catch (error) {
     throw new ApiError(
       error.message || "Failed to fetch halls",

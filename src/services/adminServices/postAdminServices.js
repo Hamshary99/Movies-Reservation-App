@@ -3,7 +3,12 @@ import { movieModel } from "../../models/movieModel.js";
 import { hallModel } from "../../models/hallModel.js";
 import { seatModel } from "../../models/seatModel.js";
 
-import { ApiError } from "../../utils/errorHandler.js";
+import * as hallRepository from "../../repository/hallRepository.js";
+import * as hallSchema from "../../models/hallSchema.js";
+
+import { ApiError, SQLError } from "../../utils/errorHandler.js";
+import { error } from "console";
+import { z } from "zod";
 
 export const createMovie = async (data) => {
   try {
@@ -63,41 +68,22 @@ export const createMovie = async (data) => {
 
 export const createHall = async (data) => {
   try {
-    const { hallName, rows, columns } = data;
-    if (!hallName || !rows || !columns) {
-      throw new ApiError("Missing required fields", 400);
-    }
+    // const parsedData = hallSchema.hallDataVerify.safeParse(data);
+    // if (!parsedData.success) {
+    //   const flatten = parsedData.error.flatten();
+    //   const missingFields = Object.keys(flatten.fieldErrors);
+    //   throw new SQLError(`Validation failed: ${missingFields.join(", ")} field/s are missing or invalid`, 400);
+    // }
 
-    const isExist = await hallModel.findOne({ name: hallName });
-    if (isExist) {
-      throw new ApiError("Hall already exists", 400);
-    }
-
-    const hall = await hallModel.create({
-      name: hallName,
-      rows,
-      columns,
-    });
-
-    const seats = [];
-    for (let row = 1; row <= rows; row++) {
-      for (let column = 1; column <= columns; column++) {
-        seats.push({
-          hall: hall._id,
-          row,
-          column,
-          label: String.fromCharCode(64 + row) + column, // e.g., A1, B2
-        });
-      }
-    }
-    await seatModel.insertMany(seats);
-
-    return hall;
-  } catch (error) {
-    throw new ApiError(
-      error.message || "Failed to create hall",
-      error.statusCode || 500
+    const { hall, seats } = await hallRepository.createHall(
+      data.hallName,
+      data.rows,
+      data.columns
     );
+
+    return { hall, seats };
+  } catch (error) {
+    throw error;
   }
 };
 
