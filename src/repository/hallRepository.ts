@@ -1,8 +1,7 @@
 import * as hallSchema from "../models/hallSchema.js";
 import * as seatSchema from "../models/seatSchema.js";
-import * as relations from "../models/relations.js";
 import { db } from "./dbConfig.js";
-import { and, eq, gt, gte, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { ApiError, SQLError } from "../utils/errorHandler.js";
 
 export const createHall = async (

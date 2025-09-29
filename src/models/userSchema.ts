@@ -13,8 +13,8 @@ import {
   createSelectSchema,
 } from "drizzle-zod";
 
-export const roles = ["user", "admin", "receptionist"] as const;
-export const roleEnum = pgEnum("role", ["user", "admin", "receptionist"]);
+export const roles = ["user", "admin", "staff"] as const;
+export const roleEnum = pgEnum("role", ["user", "admin", "staff"]);
 
 export const usersTable = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),

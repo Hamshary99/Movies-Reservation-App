@@ -1,1 +1,0 @@
-ALTER TABLE "seats" ALTER COLUMN "seat_number" SET DATA TYPE text;

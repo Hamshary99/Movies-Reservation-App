@@ -7,7 +7,7 @@ import {
 import { z } from "zod";
 import { createInsertSchema, createUpdateSchema, createSelectSchema } from "drizzle-zod";
 
-export const hallsTable = pgTable("halls", {
+export const hallsTable = pgTable("hall", {
   id: serial("id").primaryKey(),
   name: text("name").notNull().unique(),
 });

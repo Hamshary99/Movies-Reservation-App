@@ -3,7 +3,7 @@ import { movieModel } from "../../models/movieModel.js";
 import { hallModel } from "../../models/hallModel.js";
 
 import * as hallRepository from "../../repository/hallRepository.js";
-
+import * as movieRepository from "../../repository/movieRepository.js";
 
 import { ApiError } from "../../utils/errorHandler.js";
 
@@ -13,21 +13,7 @@ export const updateMovie = async (id, data) => {
       throw new ApiError("Movie ID is required", 400);
     }
     const { title, description, genres, releaseDate, ratings, director } = data;
-    const movie = await movieModel.findByIdAndUpdate(
-      id,
-      {
-        title,
-        description,
-        genres,
-        releaseDate,
-        ratings,
-        director,
-      },
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
+    const movie = await movieRepository.updateMovieById(id, data);
 
     if (!movie) {
       throw new ApiError("Movie not found", 404);

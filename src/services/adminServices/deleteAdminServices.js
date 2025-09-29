@@ -1,19 +1,20 @@
 import { showtimeModel } from "../../models/showtimeModel.js";
-import { movieModel } from "../../models/movieModel.js";
-import { hallModel } from "../../models/hallModel.js";
-import { seatModel } from "../../models/seatModel.js";
+// import { movieModel } from "../../models/movieModel.js";
+// import { hallModel } from "../../models/hallModel.js";
+// import { seatModel } from "../../models/seatModel.js";
 import { bookingModel } from "../../models/bookingModel.js";
 
 import { ApiError } from "../../utils/errorHandler.js";
 
 import * as hallRepository from "../../repository/hallRepository.js";
+import * as movieRepository from "../../repository/movieRepository.js";
 
 export const removeMovie = async (id) => {
   try {
     if (!id) {
       throw new ApiError("Movie ID is required", 400);
     }
-    const movie = await movieModel.findByIdAndDelete(id);
+    const movie = await movieRepository.deleteMovieById(id);
     if (!movie) {
       throw new ApiError("Movie not found", 404);
     }
@@ -28,7 +29,7 @@ export const removeMovie = async (id) => {
 
 export const removeAllMovies = async () => {
   try {
-    const movies = await movieModel.deleteMany({});
+    const movies = await movieRepository.deleteAllMovies();
 
     return movies;
   } catch (error) {

@@ -30,8 +30,8 @@ const router = express.Router();
 // Movie routes
 router.get("/movie/:id", authMiddleware, restrictTo("admin"), getMovie);
 router.get("/movie", authMiddleware, restrictTo("admin"), getAllMovies);
-router.post("/movie", authMiddleware, restrictTo("admin"), postMovie);
-router.put("/movie/:id", authMiddleware, restrictTo("admin"), putMovie);
+router.post("/movie", authMiddleware, restrictTo("admin"), validate(schemas.movieSchema.movieCreateSchema),postMovie);
+router.put("/movie/:id", authMiddleware, restrictTo("admin"), validate(schemas.movieSchema.movieEditSchema), putMovie);
 router.delete("/movie/:id", authMiddleware, restrictTo("admin"), deleteMovie);
 router.delete("/movie", authMiddleware, restrictTo("admin"), deleteAllMovies);
 

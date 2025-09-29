@@ -5,6 +5,7 @@ import { seatModel } from "../../models/seatModel.js";
 
 import * as hallRepository from "../../repository/hallRepository.js";
 import * as hallSchema from "../../models/hallSchema.js";
+import * as movieRepository from "../../repository/movieRepository.js";
 
 import { ApiError, SQLError } from "../../utils/errorHandler.js";
 import { error } from "console";
@@ -12,50 +13,11 @@ import { z } from "zod";
 
 export const createMovie = async (data) => {
   try {
-    const {
-      title,
-      description,
-      genres,
-      releaseDate,
-      ratings,
-      director,
-      posterUrl,
-      posterFile,
-    } = data;
-
-    if (
-      !title ||
-      !description ||
-      !genres ||
-      !releaseDate ||
-      !ratings ||
-      !director
-    ) {
-      throw new ApiError("Missing required fields", 400);
+    const isMovieExist = await movieRepository.getMovieByTitle(data.title);
+    if (isMovieExist) {
+      throw new ApiError("Movie with this title already exists", 400);
     }
-
-    const isExist = await movieModel.findOne({ title });
-    if (isExist) {
-      throw new ApiError("Movie already exists", 400);
-    }
-
-    // Handle poster (either URL or file)
-    let posterData = {};
-    if (posterUrl) {
-      posterData.posterUrl = posterUrl;
-    } else if (posterFile) {
-      posterData.posterFile = posterFile;
-    }
-
-    const movie = await movieModel.create({
-      title,
-      genres,
-      releaseDate,
-      ratings,
-      description,
-      director,
-      ...posterData,
-    });
+    const movie = await movieRepository.createMovie(data);
 
     return movie;
   } catch (error) {

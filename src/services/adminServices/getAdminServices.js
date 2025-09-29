@@ -4,6 +4,7 @@ import { hallModel } from "../../models/hallModel.js";
 import { seatModel } from "../../models/seatModel.js";
 
 import * as hallRepository from "../../repository/hallRepository.js";
+import * as movieRepository from "../../repository/movieRepository.js";
 
 import { ApiError } from "../../utils/errorHandler.js";
 
@@ -12,10 +13,7 @@ export const fetchMovie = async (id) => {
     if (!id) {
       throw new ApiError("Movie ID is required", 400);
     }
-    const movie = await movieModel.find({ _id: id });
-    if (!movie) {
-      throw new ApiError("Movie not found", 404);
-    }
+    const movie = await movieRepository.getMovieById(id);
     return movie;
   } catch (error) {
     throw new ApiError(
@@ -27,11 +25,11 @@ export const fetchMovie = async (id) => {
 
 export const fetchAllMovies = async () => {
   try {
-    const movies = await movieModel.find({});
-    if (!movies) {
+    const movie = await movieRepository.getAllMovies();
+    if (!movie) {
       throw new ApiError("Movies not found", 404);
     }
-    return movies;
+    return movie;
   } catch (error) {
     throw new ApiError(
       error.message || "Failed to fetch movies",

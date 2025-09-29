@@ -23,3 +23,10 @@ export const seatsTable = pgTable("seats", {
 
 export type Seat = typeof seatsTable.$inferSelect;
 export type newSeat = typeof seatsTable.$inferInsert;
+
+export const seatInsertSchema = {
+  rowLabel: text("seat_number").notNull(),
+  hall: integer("hall").notNull(),
+  isAvailable: boolean("is_available").default(true).notNull(),
+  booked: boolean("booked").default(false).notNull(),
+};
