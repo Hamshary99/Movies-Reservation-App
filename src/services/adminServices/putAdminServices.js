@@ -4,6 +4,7 @@ import { hallModel } from "../../models/hallModel.js";
 
 import * as hallRepository from "../../repository/hallRepository.js";
 import * as movieRepository from "../../repository/movieRepository.js";
+import * as showtimeRepository from "../../repository/showtimeRepository.js";
 
 import { ApiError } from "../../utils/errorHandler.js";
 
@@ -64,21 +65,9 @@ export const updateShowtime = async (id, data) => {
     if (!id) {
       return res.status(400).json({ message: "Showtime ID is required" });
     }
-    const { movieId, hallId, date, time } = data;
+    const { movieId, hallId, date, time, price } = data;
       
-    const showtime = await showtimeModel.findByIdAndUpdate(
-      id,
-      {
-        movie: movieId,
-        hall: hallId,
-        date,
-        time,
-      },
-      {
-        new: true,
-        runValidators: true,
-      }
-    );
+    const showtime = await showtimeRepository.updateShowtimeById(id, data);
 
     if (!showtime) {
       throw new ApiError("Showtime not found", 404);

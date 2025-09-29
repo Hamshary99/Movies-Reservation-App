@@ -44,10 +44,10 @@ router.delete("/hall/:id", authMiddleware, restrictTo("admin"), deleteHall);
 router.delete("/hall", authMiddleware, restrictTo("admin"), deleteAllHalls);
 
 // Showtime routes
-router.post("/showtime", authMiddleware, restrictTo("admin"), postShowtime);
+router.post("/showtime", authMiddleware, restrictTo("admin"), validate(schemas.showtimeSchema.showtimeCreateSchema), postShowtime);
 router.get("/showtime", authMiddleware, restrictTo("admin"), getShowtimes);
 router.get("/showtime/:id", authMiddleware, restrictTo("admin"), getShowtime);
-router.put("/showtime/:id", authMiddleware, restrictTo("admin"), putShowtime);
+router.put("/showtime/:id", authMiddleware, restrictTo("admin"), validate(schemas.showtimeSchema.showtimeEditSchema), putShowtime);
 router.delete("/showtime/:id", authMiddleware, restrictTo("admin"), deleteShowtime);
 router.delete("/showtime", authMiddleware, restrictTo("admin"), deleteAllShowtimes);
 

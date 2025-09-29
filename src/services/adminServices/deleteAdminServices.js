@@ -8,6 +8,7 @@ import { ApiError } from "../../utils/errorHandler.js";
 
 import * as hallRepository from "../../repository/hallRepository.js";
 import * as movieRepository from "../../repository/movieRepository.js";
+import * as showtimeRepository from "../../repository/showtimeRepository.js";
 
 export const removeMovie = async (id) => {
   try {
@@ -82,7 +83,7 @@ export const removeShowtime = async (id) => {
     if (!id) {
       throw new ApiError("Showtime ID is required", 400);
     }
-    const showtime = await showtimeModel.findByIdAndDelete(id);
+    const showtime = await showtimeRepository.deleteShowtimeById(id);
     if (!showtime) {
       throw new ApiError("Showtime not found", 404);
     }
@@ -97,7 +98,7 @@ export const removeShowtime = async (id) => {
 
 export const removeAllShowtimes = async () => {
   try {
-    const showtimes = await showtimeModel.deleteMany({});
+    const showtimes = await showtimeRepository.deleteAllShowtimes();
     return showtimes;
   } catch (error) {
     throw new ApiError(

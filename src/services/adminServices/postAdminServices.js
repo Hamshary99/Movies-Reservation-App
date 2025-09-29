@@ -6,6 +6,7 @@ import { seatModel } from "../../models/seatModel.js";
 import * as hallRepository from "../../repository/hallRepository.js";
 import * as hallSchema from "../../models/hallSchema.js";
 import * as movieRepository from "../../repository/movieRepository.js";
+import * as showtimeRepository from "../../repository/showtimeRepository.js";
 
 import { ApiError, SQLError } from "../../utils/errorHandler.js";
 import { error } from "console";
@@ -51,28 +52,20 @@ export const createHall = async (data) => {
 
 export const createShowtime = async (data) => {
   try {
-    const { movieId, hallId, date, time, price } = data;
-    if (!movieId || !hallId || !date || !time || !price) {
-      throw new ApiError("Missing required fields", 400);
-    }
+    // const { movieId, hallId, date, time, price } = data;
+    // if (!movieId || !hallId || !date || !time || !price) {
+    //   throw new ApiError("Missing required fields", 400);
+    // }
 
-    const isExist = await showtimeModel.findOne({
-      movie: movieId,
-      hall: hallId,
-      date,
-      time,
-    });
+    const isExist = await showtimeRepository.checkShowtimeAvailability(
+      data.date,
+      data.time
+    );
     if (isExist) {
-      throw new ApiError("Showtime already exists", 400);
+      throw new ApiError("Showtime on this date and time already exists", 400);
     }
 
-    const showtime = await showtimeModel.create({
-      movie: movieId,
-      hall: hallId,
-      date,
-      time,
-      price,
-    });
+    const showtime = await showtimeRepository.createShowtime(data);
     return showtime;
   } catch (error) {
     throw new ApiError(

@@ -1,0 +1,1 @@
+ALTER TABLE "showtimes" ADD COLUMN "price" integer NOT NULL;

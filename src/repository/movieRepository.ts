@@ -62,7 +62,7 @@ export const getAllMovies = async () => {
     }
 };
 
-export const updateMovieById = async (id: string, updateData: Partial<movieSchema.NewMovie>) => {
+export const updateMovieById = async (id: string, updateData: Partial<movieSchema.Movie>) => {
     try {
         const [updatedMovie] = await db
             .update(movieSchema.moviesTable)

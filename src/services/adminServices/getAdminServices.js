@@ -5,6 +5,7 @@ import { seatModel } from "../../models/seatModel.js";
 
 import * as hallRepository from "../../repository/hallRepository.js";
 import * as movieRepository from "../../repository/movieRepository.js";
+import * as showtimeRepository from "../../repository/showtimeRepository.js";
 
 import { ApiError } from "../../utils/errorHandler.js";
 
@@ -76,10 +77,7 @@ export const fetchShowtime = async (id) => {
       throw new ApiError("Showtime ID is required", 400);
     }
 
-    const showtime = await showtimeModel
-      .findById(id)
-      .populate("movie")
-      .populate("hall");
+    const showtime = await showtimeRepository.getShowtimeById(id);
     if (!showtime) {
       throw new ApiError("Showtime is not found", 404);
     }

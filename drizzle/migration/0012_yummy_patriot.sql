@@ -1,0 +1,1 @@
+ALTER TABLE "showtimes" ALTER COLUMN "halls" SET DATA TYPE serial;

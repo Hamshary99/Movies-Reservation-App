@@ -36,6 +36,76 @@
       "when": 1759168319318,
       "tag": "0004_purple_beyonder",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1759169299481,
+      "tag": "0005_nebulous_sphinx",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1759170830464,
+      "tag": "0006_hard_butterfly",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1759171173980,
+      "tag": "0007_fresh_xorn",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1759171248610,
+      "tag": "0008_dazzling_mordo",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1759171284442,
+      "tag": "0009_yellow_kang",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1759171308939,
+      "tag": "0010_motionless_jackpot",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1759171435382,
+      "tag": "0011_thankful_kree",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1759171646878,
+      "tag": "0012_yummy_patriot",
+      "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1759172336015,
+      "tag": "0013_skinny_doctor_faustus",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1759175624733,
+      "tag": "0014_great_skullbuster",
+      "breakpoints": true
     }
   ]
 }

@@ -2,16 +2,12 @@ import { z } from "zod";
 import {
     uuid,
     text,
-    timestamp,
     pgTable,
-    PgArray,
-    pgEnum,
-    boolean,
     jsonb,
     integer,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema, createUpdateSchema, createSelectSchema } from "drizzle-zod";
-import { dir } from "console";
+
 
 
 export const moviesTable = pgTable("movies", {

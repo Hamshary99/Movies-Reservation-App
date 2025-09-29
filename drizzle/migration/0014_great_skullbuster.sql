@@ -1,0 +1,1 @@
+ALTER TABLE "showtimes" ALTER COLUMN "price" SET DATA TYPE real;
