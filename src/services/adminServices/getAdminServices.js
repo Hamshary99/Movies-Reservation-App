@@ -1,6 +1,6 @@
-import { showtimeModel } from "../../models/showtimeModel.js";
-import { movieModel } from "../../models/movieModel.js";
-import { hallModel } from "../../models/hallModel.js";
+// import { showtimeModel } from "../../models/showtimeModel.js";
+// import { movieModel } from "../../models/movieModel.js";
+// import { hallModel } from "../../models/hallModel.js";
 import { seatModel } from "../../models/seatModel.js";
 
 import * as hallRepository from "../../repository/hallRepository.js";
@@ -93,10 +93,7 @@ export const fetchShowtime = async (id) => {
 
 export const fetchAllShowtimes = async () => {
   try {
-    const showtimes = await showtimeModel
-      .find({})
-      .populate("movie")
-      .populate("hall");
+    const showtimes = await showtimeRepository.getAllShowtimes();
     if (!showtimes) {
       throw new ApiError("Showtimes not found", 404);
     }

@@ -1,8 +1,8 @@
-import { showtimeModel } from "../../models/showtimeModel.js";
+// import { showtimeModel } from "../../models/showtimeModel.js";
 // import { movieModel } from "../../models/movieModel.js";
 // import { hallModel } from "../../models/hallModel.js";
 // import { seatModel } from "../../models/seatModel.js";
-import { bookingModel } from "../../models/bookingModel.js";
+// import { bookingModel } from "../../models/bookingModel.js";
 
 import { ApiError } from "../../utils/errorHandler.js";
 

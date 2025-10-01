@@ -14,7 +14,7 @@ import hpp from "hpp"; // To protect against HTTP Parameter Pollution attacks
 import adminRoutes from "./routes/adminRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import loginRoutes from "./routes/loginRoutes.js";
-import receptionRoutes from './routes/receptionRoutes.js';
+import employeeRoutes from './routes/employeeRoutes.js';
 import webhookRouter from "./routes/webhookRoutes.js";
 import mongoose from "mongoose";
 import { handleError } from "./utils/errorHandler.js";
@@ -84,7 +84,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 app.use('/auth', loginRoutes);
 app.use('/admin', adminRoutes);
 app.use('/user', userRoutes);
-app.use('/reception', receptionRoutes);
+app.use("/employee", employeeRoutes);
 
 // API error handling
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {

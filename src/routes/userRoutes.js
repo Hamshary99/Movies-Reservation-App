@@ -27,7 +27,7 @@ const router = express.Router();
 router.get('/profile/:id', authMiddleware, restrictTo("user", "admin"), getProfile);
 router.put('/profile/:id', authMiddleware, restrictTo("user"), putProfile);
 router.delete('/profile/:id', authMiddleware, restrictTo("user"), deleteProfile);
-// router.get("/showtimes", getShowtimes); unncessary and redundant, only good for debugging
+// router.get("/showtimes", getShowtimes); // This route is unnecessary and redundant, only good for debugging
 router.get('/showtime/:id', getShowtime);
 router.get('/showtime', getShowtimesOfMovie);
 router.get('/showtime/:id/seats', getAvailableSeatsForShowtime);

@@ -10,7 +10,7 @@ import {
   getBookingDetails,
   getShowtimes,
   getShowtime,
-} from "../controllers/receptionController.js";
+} from "../controllers/employeeController.js";
 
 const router = express.Router();
 

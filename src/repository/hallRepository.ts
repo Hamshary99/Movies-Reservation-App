@@ -15,7 +15,8 @@ export const createHall = async (
       .toUpperCase()
       .replace(/\s/g, "_")
       .replace(/([A-Za-z])(\d)/g, "$1_$2");
-    console.log(hallName);
+    // console.log(hallName);
+    
     const isHallExist = await db
       .select()
       .from(hallSchema.hallsTable)

@@ -1,6 +1,6 @@
-import { showtimeModel } from "../../models/showtimeModel.js";
-import { movieModel } from "../../models/movieModel.js";
-import { hallModel } from "../../models/hallModel.js";
+// import { showtimeModel } from "../../models/showtimeModel.js";
+// import { movieModel } from "../../models/movieModel.js";
+// import { hallModel } from "../../models/hallModel.js";
 
 import * as hallRepository from "../../repository/hallRepository.js";
 import * as movieRepository from "../../repository/movieRepository.js";

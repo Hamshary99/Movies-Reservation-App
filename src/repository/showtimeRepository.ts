@@ -3,6 +3,10 @@ import { db } from "./dbConfig.js";
 import { eq, and } from "drizzle-orm";
 import { ApiError, SQLError } from "../utils/errorHandler.js";
 
+
+import * as movieSchema from "../models/movieSchema.js";
+import * as hallSchema from "../models/hallSchema.js";
+
 export const createShowtime = async (
   showtimeData: showtimeSchema.NewShowtime
 ) => {
@@ -23,11 +27,25 @@ export const createShowtime = async (
 
 export const getShowtimeById = async (id: string) => {
   try {
+    
     const showtime = await db
-      .select()
+      .select({
+        id: showtimeSchema.showtimesTable.id,
+        movieId: showtimeSchema.showtimesTable.movieId,
+        movieName: movieSchema.moviesTable.title,
+        hallId: showtimeSchema.showtimesTable.hallId,
+        hallName: hallSchema.hallsTable.name,
+        time: showtimeSchema.showtimesTable.time,
+        date: showtimeSchema.showtimesTable.date,
+        price: showtimeSchema.showtimesTable.price,
+      })
       .from(showtimeSchema.showtimesTable)
       .where(eq(showtimeSchema.showtimesTable.id, id))
+      .leftJoin(movieSchema.moviesTable, eq(showtimeSchema.showtimesTable.movieId, movieSchema.moviesTable.id))
+      .leftJoin(hallSchema.hallsTable, eq(showtimeSchema.showtimesTable.hallId, hallSchema.hallsTable.id))
       .limit(1);
+      
+      
     if (!showtime[0]) {
       throw new ApiError("Showtime not found", 404);
     }
@@ -61,12 +79,33 @@ export const checkShowtimeAvailability = async (
 export const getAllShowtimesForMovie = async (movieId: string) => {
   try {
     const showtimes = await db
-      .select()
+      .select({
+        id: showtimeSchema.showtimesTable.id,
+        movieId: showtimeSchema.showtimesTable.movieId,
+        movieName: movieSchema.moviesTable.title,
+        hallId: showtimeSchema.showtimesTable.hallId,
+        hallName: hallSchema.hallsTable.name,
+        time: showtimeSchema.showtimesTable.time,
+        date: showtimeSchema.showtimesTable.date,
+        price: showtimeSchema.showtimesTable.price,
+      })
       .from(showtimeSchema.showtimesTable)
-      .where(eq(showtimeSchema.showtimesTable.movieId, movieId));
+      .where(eq(showtimeSchema.showtimesTable.movieId, movieId))
+      .leftJoin(movieSchema.moviesTable, eq(showtimeSchema.showtimesTable.movieId, movieSchema.moviesTable.id))
+      .leftJoin(hallSchema.hallsTable, eq(showtimeSchema.showtimesTable.hallId, hallSchema.hallsTable.id));
+    
     if (!showtimes[0]) {
       throw new ApiError("Showtimes not found", 404);
     }
+    return showtimes;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getAllShowtimes = async () => {
+  try {
+    const showtimes = await db.select().from(showtimeSchema.showtimesTable);
     return showtimes;
   } catch (error) {
     throw error;

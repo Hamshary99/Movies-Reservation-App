@@ -4,14 +4,19 @@ import { showtimeModel } from "../../models/showtimeModel.js";
 import { seatModel } from "../../models/seatModel.js";
 import { movieModel } from "../../models/movieModel.js";
 
+import * as userRepository from "../../repository/userRepositoy.js";
+import * as showtimeRepository from "../../repository/showtimeRepository.js";
+import * as movieRepository from "../../repository/movieRepository.js";
+
 import { ApiError } from "../../utils/errorHandler.js";
+
 
 export const fetchProfile = async (id) => {
   try {
     if (!id) {
       throw new ApiError("User ID is required", 400);
     }
-    const user = await userModel.findById(id).select("-password -__v");
+    const user = await userRepository.getUserById(id);
     if (!user) {
       throw new ApiError("User not found", 404);
     }
@@ -23,6 +28,7 @@ export const fetchProfile = async (id) => {
     );
   }
 };
+
 
 export const fetchShowtime = async (id) => {
   try {

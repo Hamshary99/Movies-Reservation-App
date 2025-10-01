@@ -1,7 +1,7 @@
-import { showtimeModel } from "../../models/showtimeModel.js";
-import { movieModel } from "../../models/movieModel.js";
-import { hallModel } from "../../models/hallModel.js";
-import { seatModel } from "../../models/seatModel.js";
+// import { showtimeModel } from "../../models/showtimeModel.js";
+// import { movieModel } from "../../models/movieModel.js";
+// import { hallModel } from "../../models/hallModel.js";
+// import { seatModel } from "../../models/seatModel.js";
 
 import * as hallRepository from "../../repository/hallRepository.js";
 import * as hallSchema from "../../models/hallSchema.js";

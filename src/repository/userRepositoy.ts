@@ -4,7 +4,7 @@ import * as userSchema from "../models/userSchema.js";
 import bcrypt from "bcrypt";
 import { db } from "./dbConfig.js";
 import { SQLError, ApiError } from "../utils/errorHandler.js";
-import crypto from "crypto";
+import crypto, { UUID } from "crypto";
 import { sendEmail } from "../utils/email.js";
 
 export const createUser = async (
@@ -74,6 +74,35 @@ export const getUserByEmail = async (
     throw error;
   }
 };
+
+
+export const getUserById = async (
+  id: UUID
+): Promise<userSchema.UserWithoutPassword> => {
+  try {
+    const user = await db
+      .select()
+      .from(userSchema.usersTable)
+      .where(eq(userSchema.usersTable.id, id))
+      .limit(1);
+
+    if (!user[0]) {
+      throw new ApiError(`User not found`, 404, "api_error");
+    }
+    const {
+      password: _password, // Exclude password from returned user, named as _password because password is a reserved word
+      passwordChangedAt,
+      passwordResetExpires,
+      passwordResetToken,
+      createdAt,
+      updatedAt,
+      ...userWithoutPassword
+    } = user[0]; // Exclude password from returned user
+    return userWithoutPassword;
+  } catch (error) {
+    throw error;
+  }
+}
 
 export const userForgotPassword = async (
   req: Request,
