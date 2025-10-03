@@ -54,3 +54,17 @@ export const bookingRelation = relations(
 export const userRelation = relations(userSchema.usersTable, ({ many }) => ({
   bookings: many(bookingSchema.bookingTable),
 }));
+
+export const bookingSeatRelation = relations(
+  bookingSchema.bookingSeatTable,
+  ({ one }) => ({
+    booking: one(bookingSchema.bookingTable, {
+      fields: [bookingSchema.bookingSeatTable.bookingId],
+      references: [bookingSchema.bookingTable.id],
+    }),
+    seat: one(seatSchema.seatsTable, {
+      fields: [bookingSchema.bookingSeatTable.seatId],
+      references: [seatSchema.seatsTable.id],
+    }),
+  })
+);

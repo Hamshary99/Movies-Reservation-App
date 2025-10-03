@@ -1,13 +1,17 @@
 import express from "express";
 import Stripe from "stripe";
-import { bookingModel } from "../models/bookingModel.js";
-
+import * as bookingRepository from "../repository/bookingRepository.js";
 
 const webhookRouter = express.Router();
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
-webhookRouter.post("/webhook", express.raw({ type: "application/json" }), async (req, res) => {
+import { StripeError } from "../utils/errorHandler.js";
 
+webhookRouter.post(
+  "/webhook",
+  express.raw({ type: "application/json" }),
+  async (req, res) => {
+    // console.log("⚡ Webhook hit!");
     const sig = req.headers["stripe-signature"];
     let event;
 
@@ -18,51 +22,46 @@ webhookRouter.post("/webhook", express.raw({ type: "application/json" }), async 
         process.env.STRIPE_WEBHOOK_SECRET
       );
     } catch (err) {
-      console.error("Webhook signature error:", err.message);
+      // console.error("Webhook signature error:", err.message);
       return res.status(400).send(`Webhook Error: ${err.message}`);
     }
 
 
     if (event.type === "checkout.session.completed") {
-      const session = event.data.object;
-
       try {
-        const metadata = session.metadata;
-        const userId = metadata.userId;
+        const session = event.data.object;
+        const metadata = session.metadata || {};
+        // const userId = metadata.userId;
         const showtimeId = metadata.showtimeId;
-        const seatIds = JSON.parse(metadata.seatIds || "[]");
-          
-        // console.log("Received booking metadata:", {
-        //     userId,
-        //     showtimeId,
-        //     seatIds,
-        // });
+        const seatIds = metadata.seatIds ? JSON.parse(metadata.seatIds) : [];
+        const bookingId = metadata.bookingId;
 
-        // Safety checks
-        if (!userId || !showtimeId || seatIds.length === 0) {
-          throw new Error("Invalid metadata for booking");
+        if (!showtimeId || seatIds.length === 0 || !bookingId) {
+          // throw new StripeError("Missing essential metadata in webhook", 400, "stripe_error");
+          return res.status(400).send("Missing essential metadata in webhook");
         }
 
-        // Check if already booked to avoid duplicates
-        const alreadyExists = await bookingModel.findOne({ user: userId });
-
-        if (!alreadyExists) {
-          await bookingModel.create({
-            user: userId,
-            showtime: showtimeId,
-            seats: seatIds,
-            isBooked: true,
-            isUsed: false,
-          });
-
-          console.log("Booking created via webhook");
-        } else {
-          console.log("Booking already exists, skipped");
-        }
+        await bookingRepository.confirmBooking(bookingId);
+        await bookingRepository.addSeatsToBooking(
+          bookingId,
+          showtimeId,
+          seatIds
+        );
 
         res.status(200).json({ received: true });
       } catch (err) {
-        console.error("Webhook handler failed:", err);
+        // console.error("Webhook handler failed:", err);
+        res.status(500).send("Webhook handler error");
+      }
+    } else if (
+      event.type === "payment_intent.payment_failed" ||
+      event.type === "checkout.session.expired"
+    ) {
+      try {
+        await bookingRepository.cancelBooking(bookingId);
+
+        res.status(200).json({ received: true });
+      } catch (err) {
         res.status(500).send("Webhook handler error");
       }
     } else {

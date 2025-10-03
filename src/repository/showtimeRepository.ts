@@ -6,6 +6,7 @@ import { ApiError, SQLError } from "../utils/errorHandler.js";
 
 import * as movieSchema from "../models/movieSchema.js";
 import * as hallSchema from "../models/hallSchema.js";
+import { UUID } from "crypto";
 
 export const createShowtime = async (
   showtimeData: showtimeSchema.NewShowtime
@@ -25,9 +26,9 @@ export const createShowtime = async (
   }
 };
 
-export const getShowtimeById = async (id: string) => {
+export const getShowtimeById = async (id: UUID) => {
   try {
-    
+    console.log("Fetching showtime with ID:", id);
     const showtime = await db
       .select({
         id: showtimeSchema.showtimesTable.id,
@@ -44,6 +45,8 @@ export const getShowtimeById = async (id: string) => {
       .leftJoin(movieSchema.moviesTable, eq(showtimeSchema.showtimesTable.movieId, movieSchema.moviesTable.id))
       .leftJoin(hallSchema.hallsTable, eq(showtimeSchema.showtimesTable.hallId, hallSchema.hallsTable.id))
       .limit(1);
+    
+    console.log("showtime: ", showtime);
       
       
     if (!showtime[0]) {

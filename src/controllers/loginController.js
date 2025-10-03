@@ -2,7 +2,7 @@ import crypto from "crypto";
 import { ApiError, SQLError } from "../utils/errorHandler.js";
 import { sendEmail } from "../utils/email.js";
 import jwt from "jsonwebtoken";
-import * as signupRepository from "../repository/userRepositoy.js";
+import * as signupRepository from "../repository/userRepository.js";
 import * as userSchema from "../models/userSchema.js";
 
 const tokenCookieCreator = (res, token) => {
@@ -33,7 +33,7 @@ export const postSignup = async (req, res, next) => {
         const missingFields = Object.keys(flat.fieldErrors);
         message = `Validation failed: ${missingFields.join(", ")} field/s are missing or invalid`;
       }
-      
+
       throw new SQLError(message, 400, "SQL_error", flat.fieldErrors);
     }
 
@@ -65,7 +65,7 @@ export const postLogin = async (req, res, next) => {
     if (!parsedBody.success) {
       // console.log(parsedBody.error.flatten());
       const flat = parsedBody.error.flatten();
-      let message = `Validation failed`
+      let message = `Validation failed`;
       if (flat.fieldErrors && Object.keys(flat.fieldErrors).length > 0) {
         const missingFields = Object.keys(flat.fieldErrors);
         message = `Validation failed: ${missingFields.join(", ")} field/s are missing or invalid`;
@@ -104,7 +104,7 @@ export const postForgotPassword = async (req, res, next) => {
     const message = await signupRepository.userForgotPassword(req, res);
 
     return res.status(200).json({
-      message
+      message,
     });
   } catch (error) {
     next(error);
@@ -154,4 +154,3 @@ export const patchPassword = async (req, res, next) => {
     next(error);
   }
 };
-

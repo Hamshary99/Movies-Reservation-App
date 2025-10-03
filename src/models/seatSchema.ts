@@ -1,5 +1,5 @@
 import {
-  uuid,
+  serial,
   text,
   pgTable,
   boolean,
@@ -8,7 +8,7 @@ import {
 import * as hallSchema from "./hallSchema";
 
 export const seatsTable = pgTable("seats", {
-  id: uuid("id").primaryKey().defaultRandom(),
+  id: serial("id").primaryKey(),
   rowLabel: text("seat_number").notNull(),
   // seatNumber: integer("seat_number").notNull(),
   hall: integer("halls")
@@ -17,8 +17,8 @@ export const seatsTable = pgTable("seats", {
       onDelete: "cascade",
       onUpdate: "cascade",
     }),
-  isAvailable: boolean("is_available").default(true).notNull(),
-  booked: boolean("booked").default(false).notNull(),
+  // isAvailable: boolean("is_available").default(true).notNull(),
+  // booked: boolean("booked").default(false).notNull(),
 });
 
 export type Seat = typeof seatsTable.$inferSelect;

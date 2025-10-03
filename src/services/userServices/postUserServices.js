@@ -1,9 +1,9 @@
-import { bookingModel } from "../../models/bookingModel.js";
-import { seatModel } from "../../models/seatModel.js";
-import { userModel } from "../../models/userModel.js";
 import { checkoutPayment } from "../../utils/onlinePayment.js";
 import { ApiError } from "../../utils/errorHandler.js";
-import { showtimeModel } from "../../models/showtimeModel.js";
+import {db} from "../../repository/dbConfig.js";
+import * as bookingRepository from "../../repository/bookingRepository.js";
+import * as showtimeRepository from "../../repository/showtimeRepository.js";
+import * as userRepository from "../../repository/userRepository.js";
 
 export const postBookingTicket = async (data, id) => {
   try {
@@ -14,71 +14,49 @@ export const postBookingTicket = async (data, id) => {
     if (!data || !data.showtimeId || !data.seatId) {
       throw new ApiError("Booking data is required", 400);
     }
-
     const { showtimeId, seatId } = data;
 
-    // Ensure seatId is always an array
-    let seatIds = Array.isArray(seatId)
-      ? seatId
-      : seatId !== undefined && seatId !== null
-        ? [seatId]
-        : [];
+    if (!showtimeId || !seatId) {
+      throw new ApiError("Showtime ID and Seat ID are required", 400);
+    }
 
-    if (!showtimeId || seatIds.length === 0) {
-      throw new ApiError(
-        "Showtime ID and at least one seat ID are required",
-        400
+    return db.transaction(async (tx) => {
+      const isSeatAvailableForShowtime = await bookingRepository.checkSeatAvailability(
+        showtimeId,
+        seatId
       );
-    }
 
-    const user = await userModel.findById(id);
-    if (!user) {
-      throw new ApiError("User not found", 404);
-    }
+      if (!isSeatAvailableForShowtime) {
+        throw new ApiError("One or more seats are already reserved", 400);
+      };
 
-    const showtimeDetails = await showtimeModel.findById(showtimeId);
-    if (!showtimeDetails) {
-      throw new ApiError(`Showtime with ID ${showtimeId} not found`, 404);
-    }
+      const showtime = await showtimeRepository.getShowtimeById(showtimeId);
+      if (!showtime) {
+        throw new ApiError("Showtime not found", 404);
+      }
 
-    // Find all seat documents for the given seat IDs
-    const seatDetails = await seatModel.find({ _id: { $in: seatIds } });
-    if (seatDetails.length !== seatIds.length) {
-      throw new ApiError("One or more seat IDs are invalid", 400);
-    }
+      const newBooking = await bookingRepository.createBooking(
+        id,
+        showtimeId,
+        seatId,
+        showtime.price,
+      );
 
-    // Check if any of the requested seats are already booked for this showtime
-    const existingBooking = await bookingModel.findOne({
-      showtime: showtimeId,
-      seats: { $in: seatIds },
-      isBooked: true,
+      if (!newBooking) {
+        throw new ApiError("Failed to create booking", 500);
+      }
+
+      const user = await userRepository.getUserById(id);
+      if (!user) {
+        throw new ApiError("User not found", 404);
+      }
+
+      const payment = await checkoutPayment(newBooking, seatId, showtimeId, user);
+
+      return { booking: newBooking, seats: seatId, paymentUrl: payment.url };
+
     });
-    if (existingBooking) {
-      throw new ApiError("One or more seats are already reserved", 400);
-    }
 
-    const newBooking = {
-      showtime: showtimeId,
-      seats: seatIds,
-      user: id,
-      isBooked: true,
-      isUsed: false,
-    };
-
-    const payment = await checkoutPayment(newBooking);
-
-    if (!payment || !payment.url) {
-      throw new ApiError("Payment session creation failed", 500);
-    }
-
-    return {
-      payment: {
-        url: payment.url,
-        metadata: payment.metadata,
-        price: payment.amount_total / 100,
-        quantity: payment.quantity,
-      },
-    };
   } catch (error) {
     throw new ApiError(
       error.message || "Failed to post booking",
@@ -86,3 +64,4 @@ export const postBookingTicket = async (data, id) => {
     );
   }
 };
+

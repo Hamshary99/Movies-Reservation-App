@@ -1,39 +1,22 @@
 import Stripe from "stripe";
-import { userModel } from "../models/userModel.js";
+import dotenv from "dotenv";
+dotenv.config();
 
 import { StripeError } from "./errorHandler.js";
-import { showtimeModel } from "../models/showtimeModel.js";
-import { seatModel } from "../models/seatModel.js";
-import dotenv from "dotenv";
+import { db } from "../repository/dbConfig.js";
 
-dotenv.config();
 
 const stripeClient = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-export const checkoutPayment = async (bookingDetails) => {
+export const checkoutPayment = async (bookingDetails, seatIds, showtimeId, user) => {
   try {
     if (!bookingDetails) {
       throw new StripeError("Booking details are required", 400);
     }
 
-    const userData = await userModel.findById(bookingDetails.user);
-
-    const showtimeDetails = await showtimeModel.findById(
-      bookingDetails.showtime
-    );
-
-    const seatDetails = await seatModel.find({
-      _id: { $in: bookingDetails.seats.map((seat) => seat) },
-    });
-
-    // console.log("Booking details:", bookingDetails);
-    // console.log("Showtime details:", showtimeDetails);
-    // console.log("Seat details:", seatDetails);
-    // console.log("User data:", userData);
-
     const session = await stripeClient.checkout.sessions.create({
-      client_reference_id: userData._id.toString(),
-      customer_email: userData.email,
+      client_reference_id: user.id,
+      customer_email: user.email,
       payment_method_types: ["card"],
       line_items: [
         {
@@ -42,25 +25,32 @@ export const checkoutPayment = async (bookingDetails) => {
             product_data: {
               name: "Booking Payment",
             },
-            unit_amount: showtimeDetails.price * 100, // Convert to cents
+            unit_amount: (bookingDetails.totalPrice) * 100, // Convert to cents
           },
-          quantity: bookingDetails.seats.length,
+          quantity: 1,
         },
       ],
       metadata: {
-        userName: userData.name,
-        email: userData.email,
-        showtimeId: showtimeDetails._id.toString(),
-        seatIds: JSON.stringify(seatDetails.map((seat) => seat._id.toString())),
-        userId: userData._id.toString(),
+        userId: user.id,
+        userName: user.name,
+        email: user.email,
+        showtimeId: showtimeId,
+        seatIds: JSON.stringify(seatIds.map((seat) => seat.toString())),
+        bookingId: bookingDetails.id.toString(),
       },
       mode: "payment",
       success_url: "http://localhost:5173/payment-success",
       cancel_url: "http://localhost:5173/payment-cancel",
     });
 
+    if(!session || !session.url) {
+      throw new StripeError("Stripe session creation failed", 500);
+    }
+
+
     return session;
   } catch (error) {
+    // await db.rollback();
     throw new StripeError(
       error.message || "Stripe payment method confirmation failed",
       error.statusCode || 400,

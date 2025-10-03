@@ -128,12 +128,13 @@ export const getShowtimesOfMovie = async (req, res, next) => {
 
 export const postBooking = async (req, res, next) => {
   try {
-    const booking = await postBookingTicket(req.body, req.user._id);
+    const booking = await postBookingTicket(req.body, req.user.id);
     res.status(201).json({ message: "Ticket reserved and about to pay", paymentData: booking });
   } catch (error) {
     next(error);
   }
 };
+
 
 export const getBooking = async (req, res, next) => {
   try {
@@ -146,7 +147,7 @@ export const getBooking = async (req, res, next) => {
 
 export const getAllUserBookings = async (req, res, next) => {
   try {
-    const bookings = await fetchAllUserBookings(req.user._id);
+    const bookings = await fetchAllUserBookings(req.user.id);
     res.status(200).json({
       message: "User bookings fetched successfully",
       booking: bookings,
