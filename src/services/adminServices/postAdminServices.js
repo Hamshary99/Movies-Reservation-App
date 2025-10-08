@@ -1,8 +1,3 @@
-// import { showtimeModel } from "../../models/showtimeModel.js";
-// import { movieModel } from "../../models/movieModel.js";
-// import { hallModel } from "../../models/hallModel.js";
-// import { seatModel } from "../../models/seatModel.js";
-
 import * as hallRepository from "../../repository/hallRepository.js";
 import * as hallSchema from "../../models/hallSchema.js";
 import * as movieRepository from "../../repository/movieRepository.js";
@@ -52,11 +47,6 @@ export const createHall = async (data) => {
 
 export const createShowtime = async (data) => {
   try {
-    // const { movieId, hallId, date, time, price } = data;
-    // if (!movieId || !hallId || !date || !time || !price) {
-    //   throw new ApiError("Missing required fields", 400);
-    // }
-
     const isExist = await showtimeRepository.checkShowtimeAvailability(
       data.date,
       data.time

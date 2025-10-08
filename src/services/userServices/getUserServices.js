@@ -1,13 +1,8 @@
-import { bookingModel } from "../../models/bookingModel.js";
-import { userModel } from "../../models/userModel.js";
-import { showtimeModel } from "../../models/showtimeModel.js";
-import { seatModel } from "../../models/seatModel.js";
-import { movieModel } from "../../models/movieModel.js";
-
 import * as userRepository from "../../repository/userRepository.js";
 import * as showtimeRepository from "../../repository/showtimeRepository.js";
 import * as movieRepository from "../../repository/movieRepository.js";
 import * as bookingRepository from "../../repository/bookingRepository.js";
+import * as seatRepository from "../../repository/seatRepository.js";
 
 import { ApiError } from "../../utils/errorHandler.js";
 
@@ -35,10 +30,8 @@ export const fetchShowtime = async (id) => {
       throw new ApiError("Showtime ID is required", 400);
     }
 
-    const showtime = await showtimeModel
-      .findById(id)
-      .populate("movie")
-      .populate("hall");
+    const showtime = await showtimeRepository.getShowtimeById(id);
+
     if (!showtime) {
       throw new ApiError("Showtime is not found", 404);
     }
@@ -62,35 +55,12 @@ export const fetchShowtimesOfMovie = async (date, movieId) => {
       throw new ApiError("Date is required", 400);
     }
 
-    // Since date finding is too strict in mongoose
-    const startOfDay = new Date(date);
-    const endOfDay = new Date(date);
-    startOfDay.setHours(0, 0, 0, 0);
-    endOfDay.setHours(23, 59, 59, 999);
+    const showtimes = await showtimeRepository.getMovieShowtimesofTheDay(movieId, date);
 
-    // console.log(
-    //   "Searching showtimes for",
-    //   movieId,
-    //   "between",
-    //   startOfDay,
-    //   "and",
-    //   endOfDay
-    // );
-    // const debug = await showtimeModel.find({ movie: movieId });
-    // console.log(debug.map((doc) => doc.date));
-    const showtimes = await showtimeModel
-      .find({
-        movie: movieId,
-        date: {
-          $gte: startOfDay,
-          $lte: endOfDay,
-        },
-      })
-      .populate("movie")
-      .populate("hall");
     if (showtimes.length === 0) {
       throw new ApiError("Showtimes not found", 404);
     }
+
     return showtimes;
   } catch (error) {
     throw new ApiError(
@@ -99,16 +69,16 @@ export const fetchShowtimesOfMovie = async (date, movieId) => {
     );
   }
 };
+
 
 export const fetchAllShowtimes = async () => {
   try {
-    const showtimes = await showtimeModel
-      .find()
-      .populate("movie")
-      .populate("hall");
+    const showtimes = await showtimeRepository.getAllShowtimes();
+
     if (!showtimes) {
       throw new ApiError("Showtimes not found", 404);
     }
+    
     return showtimes;
   } catch (error) {
     throw new ApiError(
@@ -118,13 +88,17 @@ export const fetchAllShowtimes = async () => {
   }
 };
 
-export const fetchBooking = async (id) => {
+export const fetchBooking = async (bookingId, userId) => {
   try {
-    if (!id) {
+    if (!bookingId) {
       throw new ApiError("Booking ID is required", 400);
     }
 
-    const booking = await bookingRepository.getBookingById(id);
+    if (!userId) {
+      throw new ApiError("User ID is required", 400);
+    }
+
+    const booking = await bookingRepository.getBookingById(bookingId, userId);
     if (!booking) {
       throw new ApiError("Booking not found", 404);
     }
@@ -138,13 +112,13 @@ export const fetchBooking = async (id) => {
   }
 };
 
-export const fetchAllUserBookings = async (id) => {
+export const fetchAllUserBookings = async (userId) => {
   try {
-    if (!id) {
+    if (!userId) {
       throw new ApiError("User ID is required", 400);
     }
 
-    const bookings = await bookingRepository.getUserBookings(id);
+    const bookings = await bookingRepository.getUserBookings(userId);
     if (!bookings) {
       throw new ApiError("Bookings not found", 404);
     }
@@ -164,25 +138,13 @@ export const fetchAvailableSeatsForShowtime = async (showtimeId) => {
       throw new ApiError("Showtime ID is required", 400);
     }
     // Find the showtime
-    const showtime = await showtimeModel.findById(showtimeId);
+    const showtime = await showtimeRepository.getShowtimeById(showtimeId);
     if (!showtime) {
       throw new ApiError("Showtime not found", 404);
     }
-    // Get all seats for the hall
-    const allSeats = await seatModel.find({ hall: showtime.hall });
-    // Find all booked seats for this showtime
-    const bookings = await bookingModel.find({
-      showtime: showtimeId,
-      isBooked: true,
-    });
-    const bookedSeatIds = bookings.flatMap((b) =>
-      b.seats.map((s) => s.toString())
-    );
 
-    const seatsWithStatus = allSeats.map((seat) => ({
-      ...seat.toObject(),
-      reserved: bookedSeatIds.includes(seat._id.toString()),
-    }));
+    const seatsWithStatus = await seatRepository.getAvailableSeatsForShowtime(showtimeId, showtime.hallId);
+
     return seatsWithStatus;
   } catch (error) {
     throw new ApiError(
@@ -197,7 +159,7 @@ export const fetchMovie = async (id) => {
     if (!id) {
       throw new ApiError("Movie ID is required", 400);
     }
-    const movie = await movieModel.find({ _id: id });
+    const movie = await movieRepository.getMovieById(id);
     if (!movie) {
       throw new ApiError("Movie not found", 404);
     }
@@ -212,7 +174,7 @@ export const fetchMovie = async (id) => {
 
 export const fetchAllMovies = async () => {
   try {
-    const movies = await movieModel.find({});
+    const movies = await movieRepository.getAllMovies();
     if (!movies) {
       throw new ApiError("Movies not found", 404);
     }
@@ -234,31 +196,9 @@ export const fetchShowtimesByMovieAndDate = async (movieId, date) => {
       throw new ApiError("Date is required", 400);
     }
 
-    // Parse the date string (YYYY-MM-DD)
-    console.log("Date string received:", date);
-
-    // Create date objects for start and end of day
-    const dateObj = new Date(date);
-    console.log("Initial date object:", dateObj);
-
-    const startOfDay = new Date(date);
-    startOfDay.setHours(0, 0, 0, 0);
-    console.log("Start of day:", startOfDay);
-
-    const endOfDay = new Date(date);
-    endOfDay.setHours(23, 59, 59, 999);
-    console.log("End of day:", endOfDay);
-
     // Query with the date range
-    const showtimes = await showtimeModel
-      .find({
-        movie: movieId,
-        date: { $gte: startOfDay, $lte: endOfDay },
-      })
-      .populate("movie")
-      .populate("hall");
-
-    console.log("Showtimes found:", showtimes.length);
+    const showtimes = await showtimeRepository.getMovieShowtimesOfTheDay(movieId, date);
+    
     return showtimes;
   } catch (error) {
     throw new ApiError(

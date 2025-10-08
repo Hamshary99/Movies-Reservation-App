@@ -1,11 +1,7 @@
-// import { showtimeModel } from "../../models/showtimeModel.js";
-// import { movieModel } from "../../models/movieModel.js";
-// import { hallModel } from "../../models/hallModel.js";
-import { seatModel } from "../../models/seatModel.js";
-
 import * as hallRepository from "../../repository/hallRepository.js";
 import * as movieRepository from "../../repository/movieRepository.js";
 import * as showtimeRepository from "../../repository/showtimeRepository.js";
+import * as seatRepository from "../../repository/seatRepository.js";
 
 import { ApiError } from "../../utils/errorHandler.js";
 
@@ -111,7 +107,7 @@ export const fetchSeatsOfHall = async (id) => {
     if (!id) {
       throw new ApiError("Hall ID is required", 400);
     }
-    const seatsOfHall = await seatModel.find({ hall: id });
+    const seatsOfHall = await seatRepository.getSeatsOfHall(id);
     return seatsOfHall;
   } catch (error) {
     throw new ApiError(

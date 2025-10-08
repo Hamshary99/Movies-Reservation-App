@@ -102,3 +102,22 @@ export const adminUserUpdateSchema = userUpdateSchema.extend({
   role: z.enum(roles).optional(), // only admins can pass role, so in user routes force role to be "user"
 });
 
+// Let user update infos
+export const userUpdateInfosSchema = userUpdateSchema
+  .omit({ password: true, passwordResetToken: true, passwordResetExpires: true })
+  .extend({
+    name: z.string().min(2, "Name should be at least 2 characters long").optional(),
+    email: z
+      .string()
+      .min(1, "Email is required")
+      .email("Invalid email address")
+      .refine((val) => val !== "undefined" && !!val, {
+        message: "Email is required",
+      })
+      .optional(),
+    phone: z
+      .string()
+      .regex(/^\+?[0-9]{7,15}$/, "Invalid phone number, you can leave it blank")
+      .optional(),
+  });
+

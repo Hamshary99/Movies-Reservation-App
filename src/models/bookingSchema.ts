@@ -29,8 +29,10 @@ export const bookingTable = pgTable("bookings", {
   totalPrice: real("total_price").notNull(),
   isBooked: boolean("booked").default(false).notNull(),
   isUsed: boolean("used").default(false).notNull(),
+  paymentId: text("payment_id"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
 
 export const bookingSeatTable = pgTable("booking_seats", {
   id: serial("id").primaryKey(),

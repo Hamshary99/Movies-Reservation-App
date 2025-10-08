@@ -35,7 +35,7 @@ export const postBookingTicket = async (data, id) => {
         throw new ApiError("Showtime not found", 404);
       }
 
-      const newBooking = await bookingRepository.createBooking(
+      let newBooking = await bookingRepository.createBooking(
         id,
         showtimeId,
         seatId,
@@ -52,6 +52,8 @@ export const postBookingTicket = async (data, id) => {
       }
 
       const payment = await checkoutPayment(newBooking, seatId, showtimeId, user);
+
+      newBooking = await bookingRepository.addPaymentId(newBooking.id, payment.id);
 
       return { booking: newBooking, seats: seatId, paymentUrl: payment.url };
 

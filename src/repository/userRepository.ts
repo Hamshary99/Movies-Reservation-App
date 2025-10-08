@@ -308,3 +308,33 @@ export const userPatchPassword = async (
     throw error;
   }
 };
+
+export const userUpdateProfile = async (userID: UUID, data: any) => {
+  try {
+    const { name, email, phone } = data;
+    const user = await db
+      .update(userSchema.usersTable)
+      .set({
+        name,
+        email,
+        phone,
+      })
+      .where(eq(userSchema.usersTable.id, userID))
+      .returning({
+        id: userSchema.usersTable.id,
+        name: userSchema.usersTable.name,
+        email: userSchema.usersTable.email,
+        role: userSchema.usersTable.role,
+        phone: userSchema.usersTable.phone || null,
+        active: userSchema.usersTable.active,
+      });
+    
+    return user[0];
+  } catch (error : any) {
+    throw new SQLError(
+      error.message || "Failed to update profile",
+      error.statusCode || 500,
+      "SQL_error"
+    );
+  }
+};

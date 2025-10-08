@@ -99,6 +99,20 @@ export const confirmBooking = async (bookingId: number) => {
   }
 };
 
+export const addPaymentId = async (bookingId: number, paymentId: string) => {
+  try {
+    const updatedBooking = await db
+      .update(bookingDB.bookingTable)
+      .set({ paymentId })
+      .where(eq(bookingDB.bookingTable.id, bookingId))
+      .returning();
+
+    return updatedBooking[0];
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const addSeatsToBooking = async (
   bookingId: number,
   showtimeId: UUID,
@@ -125,29 +139,12 @@ export const addSeatsToBooking = async (
   }
 };
 
-export const cancelBooking = async (bookingId: number) => {
-  try {
-    const deletedBooking = await db
-      .delete(bookingDB.bookingTable)
-      .where(eq(bookingDB.bookingTable.id, bookingId))
-      .returning();
-
-    if (!deletedBooking[0]) {
-      throw new SQLError("Booking not found", 404);
-    }
-
-    return deletedBooking[0];
-  } catch (error) {
-    throw error;
-  }
-};
-
-export const getBookingById = async (id: number) => {
+export const getBookingById = async (BookingId: number, userId: UUID) => {
   try {
     const bookedSeats = await db
       .select({ seatId: bookingDB.bookingSeatTable.seatId })
       .from(bookingDB.bookingSeatTable)
-      .where(eq(bookingDB.bookingSeatTable.bookingId, id));
+      .where(eq(bookingDB.bookingSeatTable.bookingId, BookingId));
 
     const seatIds = bookedSeats.map((seat) => seat.seatId);
     // console.log("seatIds: ", seatIds);
@@ -166,9 +163,12 @@ export const getBookingById = async (id: number) => {
         hallName: hallDB.hallsTable.name,
         totalprice: bookingDB.bookingTable.totalPrice,
         createdAt: bookingDB.bookingTable.createdAt,
+        isUsed: bookingDB.bookingTable.isUsed,
+        isBooked: bookingDB.bookingTable.isBooked,
+        paymentId: bookingDB.bookingTable.paymentId,
       })
       .from(bookingDB.bookingTable)
-      .where(eq(bookingDB.bookingTable.id, id))
+      .where(eq(bookingDB.bookingTable.id, BookingId))
       .leftJoin(
         userDB.usersTable,
         eq(bookingDB.bookingTable.userId, userDB.usersTable.id)
@@ -188,29 +188,36 @@ export const getBookingById = async (id: number) => {
       .leftJoin(
         bookingDB.bookingSeatTable,
         eq(bookingDB.bookingTable.id, bookingDB.bookingSeatTable.bookingId)
-      )
-      .limit(1);
+      );
 
-    console.log("booking: ", booking);
-
+    // console.log("booking: ", booking);
     if (!booking[0]) {
       throw new ApiError("Booking not found", 404);
     }
-
+    
+    if(booking[0].userId !== userId) {
+      throw new ApiError("You do not have permission to view this booking", 403);
+    }
+    
+    
     const reservedSeats = await Promise.all(
       seatIds.map(async (seatId) => {
-        const seat = await db
-          .select({ rowLabel: seatDB.seatsTable.rowLabel})
+        const [seat] = await db
+          .select({ id: seatDB.seatsTable.id, rowLabel: seatDB.seatsTable.rowLabel })
           .from(seatDB.seatsTable)
           .where(eq(seatDB.seatsTable.id, seatId))
           .limit(1);
-        return seat[0];
+        return seat;
       })
-    )
+    );
 
     return { ...booking[0], reservedSeats };
-  } catch (error) {
-    throw error;
+  } catch (error : any) {
+    throw new SQLError(
+      error.message || "Failed to fetch booking",
+      error.statusCode || 500,
+      "SQL_error"
+    );
   }
 };
 
@@ -284,8 +291,54 @@ export const getUserBookings = async (userId: UUID) => {
     );
 
     return { bookings, bookingsWithSeats };
-    
   } catch (error) {
     throw error;
   }
-}
+};
+
+export const cancelBooking = async (bookingId: number) => {
+  try {
+    const deletedBooking = await db
+      .delete(bookingDB.bookingTable)
+      .where(eq(bookingDB.bookingTable.id, bookingId))
+      .returning();
+
+    if (!deletedBooking[0]) {
+      throw new SQLError("Booking not found", 404);
+    }
+
+    return deletedBooking[0];
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const revokeBookingAfterRefund = async (bookingId: number) => {
+  try {
+    const updatedBooking = await db
+      .update(bookingDB.bookingTable)
+      .set({ isBooked: false })
+      .where(eq(bookingDB.bookingTable.id, bookingId))
+      .returning();
+
+    if (!updatedBooking[0]) {
+      throw new SQLError("Booking not found", 404);
+    }
+
+    const bookingSeats = await db
+      .delete(bookingDB.bookingSeatTable)
+      .where(eq(bookingDB.bookingSeatTable.bookingId, bookingId))
+      .returning();
+
+    if (!updatedBooking[0]) {
+      throw new SQLError("Booking not found", 404);
+    }
+
+    return {
+      updatedBooking: updatedBooking[0],
+      bookingSeats: bookingSeats[0],
+    };
+  } catch (error) {
+    throw error;
+  }
+};

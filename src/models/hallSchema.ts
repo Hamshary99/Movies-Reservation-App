@@ -1,6 +1,5 @@
 import {
   serial,
-  integer,
   text,
   pgTable,
 } from "drizzle-orm/pg-core";

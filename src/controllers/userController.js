@@ -17,7 +17,7 @@ import {
 
 import {
   updateProfile,
-  updateBooking,
+  // updateBooking,
 } from "../services/userServices/putUserServices.js";
 
 import { deleteBookingTicket } from "../services/userServices/deleteUserServices.js";
@@ -44,10 +44,6 @@ export const getProfile = async (req, res, next) => {
 
 export const putProfile = async (req, res, next) => {
   try {
-    // Only allow if the requested id matches the logged-in user's id
-    if (req.user._id.toString() !== req.params.id) {
-      throw new ApiError("You are not allowed to update this profile.", 403);
-    }
 
     if(req.body.password || req.body.confirmPassword) {
       throw new ApiError("Password cannot be updated here. Use the change password route.", 400);
@@ -56,7 +52,7 @@ export const putProfile = async (req, res, next) => {
     const updatedUser = await updateProfile(
       req.params.id || req.query.id,
       req.body,
-      req.user._id,
+      req.user.id,
       req.user.role
     );
     res.status(200).json({
@@ -138,7 +134,7 @@ export const postBooking = async (req, res, next) => {
 
 export const getBooking = async (req, res, next) => {
   try {
-    const booking = await fetchBooking(req.params.id || req.query.id);
+    const booking = await fetchBooking(req.params.id || req.query.id, req.user.id);
     res.status(200).json({ message: "Booking fetched successfully", booking });
   } catch (error) {
     next(error);
@@ -169,27 +165,27 @@ export const getAvailableSeatsForShowtime = async (req, res, next) => {
 };
 
 //Should never update a booking when it's 24h before the showtime
-export const putBooking = async (req, res, next) => {
-  try {
-    const updatedBooking = await updateBooking(
-      req.params.id,
-      req.body,
-      req.user._id
-    );
-    res.status(200).json({
-      message: "Booking updated successfully",
-      booking: updatedBooking,
-    });
-  } catch (error) {
-    next(error);
-  }
-};
+// export const putBooking = async (req, res, next) => {
+//   try {
+//     const updatedBooking = await updateBooking(
+//       req.params.id,
+//       req.body,
+//       req.user._id
+//     );
+//     res.status(200).json({
+//       message: "Booking updated successfully",
+//       booking: updatedBooking,
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 
 export const deleteBooking = async (req, res, next) => {
   try {
     const deletedBooking = await deleteBookingTicket(
       req.params.id,
-      req.user._id
+      req.user.id,
     );
     res.status(200).json({
       message: "Booking deleted successfully",
