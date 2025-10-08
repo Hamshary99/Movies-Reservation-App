@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { eq, gt, gte, and, SQL } from "drizzle-orm";
+import { eq, gte, and } from "drizzle-orm";
 import * as userSchema from "../models/userSchema.js";
 import bcrypt from "bcrypt";
 import { db } from "./dbConfig.js";
@@ -38,7 +38,11 @@ export const createUser = async (
       throw new SQLError(`User already exists`, 400, "SQL_error");
     else if (error.cause?.code === "23502")
       throw new SQLError(`Missing required fields`, 400, "SQL_error");
-    else throw error;
+    else throw new SQLError(
+      error.message || "Failed to create user",
+      error.statusCode || 500,
+      "SQL_error"
+    );
   }
 };
 
@@ -70,8 +74,12 @@ export const getUserByEmail = async (
       ...userWithoutPassword
     } = user[0]; // Exclude password from returned user
     return userWithoutPassword;
-  } catch (error) {
-    throw error;
+  } catch (error: any) {
+    throw new SQLError(
+      error.message || "Failed to get user",
+      error.statusCode || 500,
+      "SQL_error"
+    );
   }
 };
 
@@ -99,8 +107,12 @@ export const getUserById = async (
       ...userWithoutPassword
     } = user[0]; // Exclude password from returned user
     return userWithoutPassword;
-  } catch (error) {
-    throw error;
+  } catch (error: any) {
+    throw new SQLError(
+      error.message || "Failed to get user",
+      error.statusCode || 500,
+      "SQL_error"
+    );
   }
 }
 
@@ -178,7 +190,11 @@ If you did not request this, you can safely ignore this email.
   } catch (error: any) {
     if (error.cause?.code === "23502")
       throw new SQLError(`Missing required fields`, 400, "SQL_error");
-    throw error;
+    throw new SQLError(
+      error.message || "Failed to reset password",
+      error.statusCode || 500,
+      error.sqlMessage || "sql_error"
+    );
   }
 };
 
@@ -242,8 +258,12 @@ export const userResetPassword = async (
     console.log("New password hashed successfully", updatedUser[0]);
 
     return updatedUser[0];
-  } catch (error) {
-    throw error;
+  } catch (error : any) {
+    throw new SQLError(
+      error.message || "Failed to update password",
+      error.statusCode || 500,
+      "SQL_error"
+    );
   }
 };
 
@@ -304,8 +324,12 @@ export const userPatchPassword = async (
     }
 
     return user[0];
-  } catch (error) {
-    throw error;
+  } catch (error : any) {
+    throw new SQLError(
+      error.message || "Failed to update password",
+      error.statusCode || 500,
+      "SQL_error"
+    );
   }
 };
 

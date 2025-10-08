@@ -7,7 +7,6 @@ dotenv.config();
 import cors from "cors";
 import rateLimit from "express-rate-limit"; // To avoid brute force attacks
 import helmet from "helmet"; // To set security-related HTTP headers
-import MongoSanitize from "express-mongo-sanitize"; // To sanitize user input against NoSQL query injection
 // import xss from "xss-clean"; // To sanitize user input against XSS attacks
 import hpp from "hpp"; // To protect against HTTP Parameter Pollution attacks
 
@@ -16,15 +15,9 @@ import userRoutes from "./routes/userRoutes.js";
 import loginRoutes from "./routes/loginRoutes.js";
 import employeeRoutes from './routes/employeeRoutes.js';
 import webhookRouter from "./routes/webhookRoutes.js";
-import mongoose from "mongoose";
+
 import { handleError } from "./utils/errorHandler.js";
 
-
-// Connect to MongoDB
-mongoose
-  .connect(process.env.MONGODB_URI!)
-  .then(() => console.log("MongoDB connected successfully"))
-  .catch((err) => console.error("MongoDB connection error:", err));
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -60,8 +53,6 @@ app.use(express.json({ limit: '10kb' })); // Limit the amount of data, to protec
 // Serving static files from the 'public' directory
 app.use(express.urlencoded({ extended: true }));
 
-// Data sanitization against NoSQL query injection
-app.use(MongoSanitize());
 
 // Data sanitization against XSS attacks
 // app.use(xss());

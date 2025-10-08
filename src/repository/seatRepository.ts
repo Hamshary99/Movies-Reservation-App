@@ -4,10 +4,9 @@ import * as bookingSchema from "../models/index.js";
 import * as hallSchema from "../models/index.js";
 import { db } from "./dbConfig.js";
 import { eq, and, isNull } from "drizzle-orm";
-import { ApiError, SQLError } from "../utils/errorHandler.js";
+import { SQLError } from "../utils/errorHandler.js";
 
 const seatDB = seatSchema.seatSchema;
-const showtimeDB = showtimeSchema.showtimeSchema;
 const bookingDB = bookingSchema.bookingSchema;
 const hallDB = hallSchema.hallSchema;
 

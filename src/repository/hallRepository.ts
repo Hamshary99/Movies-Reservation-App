@@ -60,7 +60,11 @@ export const createHall = async (
     // console.log(seats);
     return { hall: hall[0], seats: seatsOfHall };
   } catch (error: any) {
-    throw error;
+    throw new SQLError(
+      error.message || "Failed to create hall",
+      error.statusCode || 500,
+      error.sqlMessage || "SQL_error"
+    );
   }
 };
 
@@ -70,14 +74,18 @@ export const getHalls = async () => {
       .select()
       .from(hallSchema.hallsTable)
       .orderBy(hallSchema.hallsTable.name);
-    
+
     if (!halls[0]) {
       throw new ApiError("No halls found", 404);
     }
 
     return halls;
   } catch (error: any) {
-    throw error;
+    throw new SQLError(
+      error.message || "Failed to get halls",
+      error.statusCode || 500,
+      error.sqlMessage || "SQL_error"
+    );
   }
 };
 
@@ -105,7 +113,11 @@ export const getHall = async (id: number) => {
       return { hall: hall[0], seats: seatsOfHall };
     });
   } catch (error: any) {
-    throw error;
+    throw new SQLError(
+      error.message || "Failed to get hall",
+      error.statusCode || 500,
+      error.sqlMessage || "SQL_error"
+    );
   }
 };
 
@@ -135,23 +147,6 @@ export const updateHall = async (
         console.log("Hall does not exist or error occurred");
         throw new ApiError("Hall not found", 404);
       }
-
-      // Tried to update hall name but it won't work as the type name is unique (might be changed in future)
-
-      // const hall = await tx
-      //   .update(hallSchema.hallsTable)
-      //   .set({ name: hallName })
-      //   .where(eq(hallSchema.hallsTable.id, id))
-      //   .returning()
-      //   .catch((error: any) => {
-      //     const err = error?.message || error?.cause || error?.cause?.message || error;
-      //     console.log("Error with updating hall: ", err);
-      //     throw new SQLError(`Failed to update hall ${err}`, 500, "SQL_error");
-      //   });
-
-      // if (!hall[0]) {
-      //   throw new SQLError("Failed to update hall", 500, "SQL_error");
-      // }
 
       try {
         await tx
@@ -186,7 +181,11 @@ export const updateHall = async (
       return { hall: isHallExist[0], seats: seatsOfHall };
     });
   } catch (error: any) {
-    throw error;
+    throw new SQLError(
+      error.message || "Failed to update hall",
+      error.statusCode || 500,
+      error.sqlMessage || "SQL_error"
+    );
   }
 };
 
@@ -199,7 +198,11 @@ export const deleteHalls = async () => {
 
     return deletedHalls;
   } catch (error: any) {
-    throw error;
+    throw new SQLError(
+      error.message || "Failed to delete halls",
+      error.statusCode || 500,
+      error.sqlMessage || "SQL_error"
+    );
   }
 };
 
@@ -216,6 +219,10 @@ export const deleteHall = async (id: number) => {
 
     return deletedHall[0];
   } catch (error: any) {
-    throw error;
+    throw new SQLError(
+      error.message || "Failed to delete hall",
+      error.statusCode || 500,
+      error.sqlMessage || "SQL_error"
+    );
   }
 };

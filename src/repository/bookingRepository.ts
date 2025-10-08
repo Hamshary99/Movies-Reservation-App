@@ -5,7 +5,7 @@ import * as seatSchema from "../models/index.js";
 import * as userSchema from "../models/index.js";
 import * as movieSchema from "../models/index.js";
 import { db } from "./dbConfig.js";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { ApiError, SQLError } from "../utils/errorHandler.js";
 import { UUID } from "crypto";
 
@@ -47,8 +47,12 @@ export const checkSeatAvailability = async (
     }
 
     return true;
-  } catch (error) {
-    throw error;
+  } catch (error: any) {
+    throw new SQLError(
+      error.message || "Failed to check seat availability.",
+      error.statusCode || 500,
+      error.sqlMessage || "SQL_error"
+    );
   }
 };
 
@@ -74,8 +78,12 @@ export const createBooking = async (
     }
 
     return booking[0];
-  } catch (error) {
-    throw error;
+  } catch (error: any) {
+    throw new SQLError(
+      error.message || "Failed to create booking.",
+      error.statusCode || 500,
+      error.sqlMessage || "SQL_error"
+    );
   }
 };
 
@@ -94,8 +102,12 @@ export const confirmBooking = async (bookingId: number) => {
       );
     }
     return booking[0];
-  } catch (error) {
-    throw error;
+  } catch (error: any) {
+    throw new SQLError(
+      error.message || "Failed to confirm booking.",
+      error.statusCode || 500,
+      error.sqlMessage || "SQL_error"
+    );
   }
 };
 
@@ -108,8 +120,12 @@ export const addPaymentId = async (bookingId: number, paymentId: string) => {
       .returning();
 
     return updatedBooking[0];
-  } catch (error) {
-    throw error;
+  } catch (error: any) {
+    throw new SQLError(
+      error.message || "Failed to add payment ID.",
+      error.statusCode || 500,
+      error.sqlMessage || "SQL_error"
+    );
   }
 };
 
@@ -134,8 +150,12 @@ export const addSeatsToBooking = async (
     // console.log("bookingSeats: ", bookingSeats);
 
     return bookingSeats;
-  } catch (error) {
-    throw error;
+  } catch (error: any) {
+    throw new SQLError(
+      error.message || "Failed to add seats to booking.",
+      error.statusCode || 500,
+      error.sqlMessage || "SQL_error"
+    );
   }
 };
 
@@ -291,8 +311,12 @@ export const getUserBookings = async (userId: UUID) => {
     );
 
     return { bookings, bookingsWithSeats };
-  } catch (error) {
-    throw error;
+  } catch (error: any) {
+    throw new SQLError(
+      error.message || "Failed to fetch bookings",
+      error.statusCode || 500,
+      "SQL_error"
+    );
   }
 };
 
@@ -308,8 +332,12 @@ export const cancelBooking = async (bookingId: number) => {
     }
 
     return deletedBooking[0];
-  } catch (error) {
-    throw error;
+  } catch (error: any) {
+    throw new SQLError(
+      error.message || "Failed to cancel booking",
+      error.statusCode || 500,
+      "SQL_error"
+    );
   }
 };
 
@@ -338,7 +366,11 @@ export const revokeBookingAfterRefund = async (bookingId: number) => {
       updatedBooking: updatedBooking[0],
       bookingSeats: bookingSeats[0],
     };
-  } catch (error) {
-    throw error;
+  } catch (error: any) {
+    throw new SQLError(
+      error.message || "Failed to revoke booking",
+      error.statusCode || 500,
+      "SQL_error"
+    );
   }
 };
