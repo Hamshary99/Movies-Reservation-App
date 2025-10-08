@@ -5,7 +5,7 @@ import * as seatSchema from "../models/index.js";
 import * as userSchema from "../models/index.js";
 import * as movieSchema from "../models/index.js";
 import { db } from "./dbConfig.js";
-import { and, eq, inArray, sql } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { ApiError, SQLError } from "../utils/errorHandler.js";
 import { UUID } from "crypto";
 
