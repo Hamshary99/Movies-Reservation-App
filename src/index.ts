@@ -1,6 +1,6 @@
 import express from "express";
 import { Request, Response, NextFunction } from "express";
-
+import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -13,7 +13,7 @@ import hpp from "hpp"; // To protect against HTTP Parameter Pollution attacks
 import adminRoutes from "./routes/adminRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import loginRoutes from "./routes/loginRoutes.js";
-import employeeRoutes from './routes/employeeRoutes.js';
+// import employeeRoutes from './routes/employeeRoutes.js';
 import webhookRouter from "./routes/webhookRoutes.js";
 
 import { handleError } from "./utils/errorHandler.js";
@@ -64,7 +64,7 @@ app.use(
   })
 );
 
-
+app.use(cookieParser());
 
 // Middleware to log the request time
 app.use((req: Request, res: Response, next: NextFunction) => {
@@ -75,7 +75,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 app.use('/auth', loginRoutes);
 app.use('/admin', adminRoutes);
 app.use('/user', userRoutes);
-app.use("/employee", employeeRoutes);
+// app.use("/employee", employeeRoutes);
 
 // API error handling
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {

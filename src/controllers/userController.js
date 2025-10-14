@@ -11,9 +11,7 @@ import {
   fetchShowtimesOfMovie,
 } from "../services/userServices/getUserServices.js";
 
-import {
-  postBookingTicket,
-} from "../services/userServices/postUserServices.js";
+import { postBookingTicket } from "../services/userServices/postUserServices.js";
 
 import {
   updateProfile,
@@ -24,18 +22,21 @@ import { deleteBookingTicket } from "../services/userServices/deleteUserServices
 
 import { ApiError } from "../utils/errorHandler.js";
 
+import * as userRepository from "../repository/userRepository.js";
+
 export const getProfile = async (req, res, next) => {
   try {
     // Only allow if the requested id matches the logged-in user's id
-    if (req.user._id.toString() !== req.params.id) {
-      throw new ApiError("You are not allowed to view this profile.", 403);
-    }
+    // if (req.user.id.toString() !== req.params.id) {
+    //   throw new ApiError("You are not allowed to view this profile.", 403);
+    // }
 
-    const user = await fetchProfile(req.params.id || req.query.id);
+    // const user = await fetchProfile(req.params.id || req.query.id);
+    const user = await fetchProfile(req.user.id);
 
     res.json({
       message: "User profile fetched successfully",
-      user
+      user,
     });
   } catch (error) {
     next(error);
@@ -44,9 +45,11 @@ export const getProfile = async (req, res, next) => {
 
 export const putProfile = async (req, res, next) => {
   try {
-
-    if(req.body.password || req.body.confirmPassword) {
-      throw new ApiError("Password cannot be updated here. Use the change password route.", 400);
+    if (req.body.password || req.body.confirmPassword) {
+      throw new ApiError(
+        "Password cannot be updated here. Use the change password route.",
+        400
+      );
     }
 
     const updatedUser = await updateProfile(
@@ -66,15 +69,13 @@ export const putProfile = async (req, res, next) => {
 
 export const deleteProfile = async (req, res, next) => {
   try {
-    if( req.user._id.toString() !== req.params.id) {
+    if (req.user._id.toString() !== req.params.id) {
       throw new ApiError("You are not allowed to delete this profile.", 403);
     }
-    
+
     // Preferred over deletion IF we needed to preserve the user
     // What if the user accidentally deleted their profile, then they wanted to recover it. What will happen to the already booked tickets?
-    await userModel.findByIdAndUpdate(req.user.id, { active: false });
-
-    // await userModel.findByIdAndDelete(req.user.id);
+    await userRepository.setUserInactive(req.user.id);
 
     res.status(204).json({
       message: "User deleted successfully",
@@ -110,8 +111,7 @@ export const getShowtime = async (req, res, next) => {
 export const getShowtimesOfMovie = async (req, res, next) => {
   try {
     const { date, movieId } = req.query;
-    // console.log("date: ", date);
-    // console.log("movie: ", movieId);
+
     const showtime = await fetchShowtimesOfMovie(date, movieId);
     res.status(200).json({
       message: "Showtimes fetched successfully",
@@ -125,16 +125,23 @@ export const getShowtimesOfMovie = async (req, res, next) => {
 export const postBooking = async (req, res, next) => {
   try {
     const booking = await postBookingTicket(req.body, req.user.id);
-    res.status(201).json({ message: "Ticket reserved and about to pay", paymentData: booking });
+    res
+      .status(201)
+      .json({
+        message: "Ticket reserved and about to pay",
+        paymentData: booking,
+      });
   } catch (error) {
     next(error);
   }
 };
 
-
 export const getBooking = async (req, res, next) => {
   try {
-    const booking = await fetchBooking(req.params.id || req.query.id, req.user.id);
+    const booking = await fetchBooking(
+      req.params.id || req.query.id,
+      req.user.id
+    );
     res.status(200).json({ message: "Booking fetched successfully", booking });
   } catch (error) {
     next(error);
@@ -164,28 +171,11 @@ export const getAvailableSeatsForShowtime = async (req, res, next) => {
   }
 };
 
-//Should never update a booking when it's 24h before the showtime
-// export const putBooking = async (req, res, next) => {
-//   try {
-//     const updatedBooking = await updateBooking(
-//       req.params.id,
-//       req.body,
-//       req.user._id
-//     );
-//     res.status(200).json({
-//       message: "Booking updated successfully",
-//       booking: updatedBooking,
-//     });
-//   } catch (error) {
-//     next(error);
-//   }
-// };
-
 export const deleteBooking = async (req, res, next) => {
   try {
     const deletedBooking = await deleteBookingTicket(
       req.params.id,
-      req.user.id,
+      req.user.id
     );
     res.status(200).json({
       message: "Booking deleted successfully",
@@ -217,7 +207,6 @@ export const getMovie = async (req, res, next) => {
   }
 };
 
-
 export const getShowtimesByMovieAndDate = async (req, res, next) => {
   try {
     const { movieId, date } = req.params;
@@ -230,4 +219,3 @@ export const getShowtimesByMovieAndDate = async (req, res, next) => {
     next(error);
   }
 };
-

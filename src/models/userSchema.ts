@@ -27,6 +27,7 @@ export const usersTable = pgTable("users", {
   passwordResetToken: text("password_reset_token"),
   passwordResetExpires: timestamp("password_reset_expires"),
   active: boolean("active").default(true),
+  refresh_token: text("refresh_token"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
@@ -40,13 +41,13 @@ export type NewUser = typeof usersTable.$inferInsert;
 export type UserWithoutPassword = Omit<
   User,
   | "password"
-  | "passwordChangedAt"
   | "passwordResetToken"
   | "passwordResetExpires"
   | "createdAt"
   | "updatedAt"
->;
-export type UserWithToken = UserWithoutPassword & { token: string }; // May not be needed
+  | "refresh_token"
+  >;
+export type UserWithRefreshToken = UserWithoutPassword & { refresh_token: string }; 
 export type UserEmailOnly = Pick<User, "email">;
 
 export const userInsertSchema = createInsertSchema(usersTable);
@@ -91,6 +92,12 @@ export const userLoginSchema = userSelectSchema
     message: "Email and password are required",
   });
 
+export const userForgotPasswordSchema = userSelectSchema
+  .pick({ email: true })
+  .refine((data) => data.email, {
+    message: "Email is required",
+  }); 
+  
 // Internal insert schema for user creation in DB
 // Used by normal users
 export const restrictedUserUpdateSchema = userUpdateSchema.extend({

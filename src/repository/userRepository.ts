@@ -26,6 +26,7 @@ export const createUser = async (
         role: userSchema.usersTable.role,
         phone: userSchema.usersTable.phone || null,
         active: userSchema.usersTable.active,
+        passwordChangedAt: userSchema.usersTable.passwordChangedAt,
       });
     if (!user) {
       throw new SQLError(`Signup failed`, 400, "SQL_error");
@@ -38,11 +39,12 @@ export const createUser = async (
       throw new SQLError(`User already exists`, 400, "SQL_error");
     else if (error.cause?.code === "23502")
       throw new SQLError(`Missing required fields`, 400, "SQL_error");
-    else throw new SQLError(
-      error.message || "Failed to create user",
-      error.statusCode || 500,
-      "SQL_error"
-    );
+    else
+      throw new SQLError(
+        error.message || "Failed to create user",
+        error.statusCode || 500,
+        "SQL_error"
+      );
   }
 };
 
@@ -66,7 +68,6 @@ export const getUserByEmail = async (
 
     const {
       password: _password, // Exclude password from returned user, named as _password because password is a reserved word
-      passwordChangedAt,
       passwordResetExpires,
       passwordResetToken,
       createdAt,
@@ -83,7 +84,6 @@ export const getUserByEmail = async (
   }
 };
 
-
 export const getUserById = async (
   id: UUID
 ): Promise<userSchema.UserWithoutPassword> => {
@@ -91,7 +91,8 @@ export const getUserById = async (
     const user = await db
       .select()
       .from(userSchema.usersTable)
-      .where(eq(userSchema.usersTable.id, id))
+      .where(and(eq(userSchema.usersTable.id, id),
+        eq(userSchema.usersTable.active, true)))
       .limit(1);
 
     if (!user[0]) {
@@ -99,13 +100,43 @@ export const getUserById = async (
     }
     const {
       password: _password, // Exclude password from returned user, named as _password because password is a reserved word
-      passwordChangedAt,
+      passwordResetExpires,
+      passwordResetToken,
+      createdAt,
+      updatedAt,
+      // refresh_token,
+      ...userWithoutPassword
+    } = user[0]; // Exclude password from returned user
+    return userWithoutPassword;
+  } catch (error: any) {
+    throw new SQLError(
+      error.message || "Failed to get user",
+      error.statusCode || 500,
+      "SQL_error"
+    );
+  }
+};
+
+export const getUserRefreshToken = async (userId: UUID) => {
+  try {
+    const user = await db
+      .select()
+      .from(userSchema.usersTable)
+      .where(eq(userSchema.usersTable.id, userId))
+      .limit(1);
+    if (!user[0]) {
+      throw new ApiError(`User not found`, 404, "api_error");
+    }
+
+    const {
+      password: _password, // Exclude password from returned user, named as _password because password is a reserved word
       passwordResetExpires,
       passwordResetToken,
       createdAt,
       updatedAt,
       ...userWithoutPassword
     } = user[0]; // Exclude password from returned user
+    
     return userWithoutPassword;
   } catch (error: any) {
     throw new SQLError(
@@ -119,8 +150,7 @@ export const getUserById = async (
 export const userForgotPassword = async (
   req: Request,
   res: Response
-  // email: string
-): Promise<{ message: string }> => {
+) => {
   try {
     const email = req.body.email;
 
@@ -198,6 +228,7 @@ If you did not request this, you can safely ignore this email.
   }
 };
 
+
 export const userResetPassword = async (
   req: Request
 ): Promise<userSchema.UserWithoutPassword> => {
@@ -253,12 +284,13 @@ export const userResetPassword = async (
         role: userSchema.usersTable.role,
         phone: userSchema.usersTable.phone || null,
         active: userSchema.usersTable.active,
+        passwordChangedAt: userSchema.usersTable.passwordChangedAt,
       });
 
     console.log("New password hashed successfully", updatedUser[0]);
 
     return updatedUser[0];
-  } catch (error : any) {
+  } catch (error: any) {
     throw new SQLError(
       error.message || "Failed to update password",
       error.statusCode || 500,
@@ -317,6 +349,7 @@ export const userPatchPassword = async (
         role: userSchema.usersTable.role,
         phone: userSchema.usersTable.phone || null,
         active: userSchema.usersTable.active,
+        passwordChangedAt: userSchema.usersTable.passwordChangedAt,
       });
 
     if (!user[0]) {
@@ -324,7 +357,7 @@ export const userPatchPassword = async (
     }
 
     return user[0];
-  } catch (error : any) {
+  } catch (error: any) {
     throw new SQLError(
       error.message || "Failed to update password",
       error.statusCode || 500,
@@ -352,11 +385,59 @@ export const userUpdateProfile = async (userID: UUID, data: any) => {
         phone: userSchema.usersTable.phone || null,
         active: userSchema.usersTable.active,
       });
-    
+
     return user[0];
-  } catch (error : any) {
+  } catch (error: any) {
     throw new SQLError(
       error.message || "Failed to update profile",
+      error.statusCode || 500,
+      "SQL_error"
+    );
+  }
+};
+
+export const saveRefreshToken = async (userId: UUID, token: string) => {
+  try {
+    await db
+    .update(userSchema.usersTable)
+    .set({ refresh_token: token })
+    .where(eq(userSchema.usersTable.id, userId));
+  }
+  catch (error: any) {
+    throw new SQLError(
+      error.message || "Failed to save refresh token",
+      error.statusCode || 500,
+      "SQL_error"
+    );
+  }
+};
+
+export const removeRefreshToken = async (userId: UUID) => {
+  try {
+    await db
+    .update(userSchema.usersTable)
+    .set({ refresh_token: null })
+    .where(eq(userSchema.usersTable.id, userId));
+  }
+  catch (error: any) {
+    throw new SQLError(
+      error.message || "Failed to remove refresh token",
+      error.statusCode || 500,
+      "SQL_error"
+    );
+  }
+};
+
+export const setUserInactive = async (userId: UUID) => {
+  try {
+    await db
+    .update(userSchema.usersTable)
+    .set({ active: false })
+    .where(eq(userSchema.usersTable.id, userId));
+  }
+  catch (error: any) {
+    throw new SQLError(
+      error.message || "Failed to set user inactive",
       error.statusCode || 500,
       "SQL_error"
     );

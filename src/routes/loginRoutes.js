@@ -5,17 +5,24 @@ import {
   postForgotPassword,
   ResetPassword,
   patchPassword,
+  postLogout,
+  refreshToken
 } from "../controllers/loginController.js";
-import { authMiddleware, restrictTo } from "../middleware/auth.js"; // Could be moved later to user, admin and receptionist routes
-
+import { authMiddleware, restrictTo } from "../middleware/auth.js";
+import { validate } from '../middleware/validate.js';
+import * as userSchema from '../models/userSchema.js';
 
 const router = express.Router();
 
-router.post('/login', postLogin);
-router.post('/register', postSignup);
-// router.post('/logout', (req, res) => { });
-router.post('/forgotPassword', postForgotPassword);
+router.post('/login', validate(userSchema.userLoginSchema), postLogin);
+router.post('/register', validate(userSchema.userSignUpSchema), postSignup);
+router.post('/logout', authMiddleware, postLogout);
+
+router.get("/refresh", refreshToken);
+
+router.post('/forgotPassword', validate(userSchema.userForgotPasswordSchema), postForgotPassword);
 router.patch('/resetPassword/:token', ResetPassword);
-router.patch('/changePassword', authMiddleware, restrictTo("user", "admin", "receptionist"), patchPassword); // This one is for changing the password of the logged-in user, without forgetting the password
+router.patch('/changePassword', authMiddleware, patchPassword); // This one is for changing the password of the logged-in user, without forgetting the password
+
 
 export default router;
