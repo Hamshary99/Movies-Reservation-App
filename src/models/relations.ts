@@ -1,0 +1,70 @@
+import { relations } from "drizzle-orm";
+import * as userSchema from "./userSchema";
+import * as hallSchema from "./hallSchema";
+import * as seatSchema from "./seatSchema";
+import * as movieSchema from "./movieSchema";
+import * as showtimeSchema from "./showtimeSchema";
+import * as bookingSchema from "./bookingSchema";
+
+export const hallRelation = relations(hallSchema.hallsTable, ({ many }) => ({
+  seats: many(seatSchema.seatsTable),
+  showtimes: many(showtimeSchema.showtimesTable),
+}));
+
+export const seatRelation = relations(seatSchema.seatsTable, ({ one }) => ({
+  hall: one(hallSchema.hallsTable, {
+    fields: [seatSchema.seatsTable.hall],
+    references: [hallSchema.hallsTable.id],
+  }),
+}));
+
+export const movieRelation = relations(movieSchema.moviesTable, ({ many }) => ({
+  showtimes: many(showtimeSchema.showtimesTable),
+}));
+
+export const showtimeRelation = relations(
+  showtimeSchema.showtimesTable,
+  ({ one, many }) => ({
+    movie: one(movieSchema.moviesTable, {
+      fields: [showtimeSchema.showtimesTable.movieId],
+      references: [movieSchema.moviesTable.id],
+    }),
+    hall: one(hallSchema.hallsTable, {
+      fields: [showtimeSchema.showtimesTable.hallId],
+      references: [hallSchema.hallsTable.id],
+    }),
+    bookings: many(bookingSchema.bookingTable),
+  })
+);
+
+export const bookingRelation = relations(
+  bookingSchema.bookingTable,
+  ({ one }) => ({
+    user: one(userSchema.usersTable, {
+      fields: [bookingSchema.bookingTable.userId],
+      references: [userSchema.usersTable.id],
+    }),
+    showtime: one(showtimeSchema.showtimesTable, {
+      fields: [bookingSchema.bookingTable.showtimeId],
+      references: [showtimeSchema.showtimesTable.id],
+    }),
+  })
+);
+
+export const userRelation = relations(userSchema.usersTable, ({ many }) => ({
+  bookings: many(bookingSchema.bookingTable),
+}));
+
+export const bookingSeatRelation = relations(
+  bookingSchema.bookingSeatTable,
+  ({ one }) => ({
+    booking: one(bookingSchema.bookingTable, {
+      fields: [bookingSchema.bookingSeatTable.bookingId],
+      references: [bookingSchema.bookingTable.id],
+    }),
+    seat: one(seatSchema.seatsTable, {
+      fields: [bookingSchema.bookingSeatTable.seatId],
+      references: [seatSchema.seatsTable.id],
+    }),
+  })
+);
