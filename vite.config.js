@@ -2,9 +2,9 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
 export default defineConfig({
-  root: "src/views",
+  root: "client",
   build: {
-    outDir: "../../public/dist",
+    outDir: "../public/dist",
     emptyOutDir: true,
   },
   plugins: [react()],
