@@ -1,4 +1,6 @@
 /node_modules
+/client/node_modules
 /.env
 /auth.http
 /drizzle
+/drizzle/migration
