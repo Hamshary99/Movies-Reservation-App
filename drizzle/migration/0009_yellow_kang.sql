@@ -1,1 +1,0 @@
-ALTER TABLE "showtimes" ALTER COLUMN "movies" SET DATA TYPE uuid;

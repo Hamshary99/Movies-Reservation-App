@@ -1,6 +1,0 @@
-/node_modules
-/Client/node_modules
-/.env
-/auth.http
-/drizzle
-/drizzle/migration

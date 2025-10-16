@@ -1,1 +1,0 @@
-ALTER TABLE "movies" ALTER COLUMN "ratings" DROP NOT NULL;
