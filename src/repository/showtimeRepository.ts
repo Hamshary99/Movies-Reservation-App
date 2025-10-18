@@ -154,9 +154,15 @@ export const getMovieShowtimesOfTheDay = async (
       .where(
         and(
           eq(showtimeSchema.showtimesTable.date, date),
-          eq(showtimeSchema.showtimesTable.id, movieId)
+          eq(showtimeSchema.showtimesTable.movieId, movieId)
         )
-      );
+    );
+
+    console.log("showtimes: ", showtimes);
+    
+    if(!showtimes[0]) {
+      return [];
+    }
 
     return showtimes;
   } catch (error: any) {

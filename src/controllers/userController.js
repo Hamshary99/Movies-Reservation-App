@@ -110,9 +110,9 @@ export const getShowtime = async (req, res, next) => {
 
 export const getShowtimesOfMovie = async (req, res, next) => {
   try {
-    const { date, movieId } = req.query;
+    const { movieId } = req.query;
 
-    const showtime = await fetchShowtimesOfMovie(date, movieId);
+    const showtime = await fetchShowtimesOfMovie(movieId);
     res.status(200).json({
       message: "Showtimes fetched successfully",
       showtime: showtime,

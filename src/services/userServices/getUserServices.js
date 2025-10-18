@@ -3,6 +3,7 @@ import * as showtimeRepository from "../../repository/showtimeRepository.js";
 import * as movieRepository from "../../repository/movieRepository.js";
 import * as bookingRepository from "../../repository/bookingRepository.js";
 import * as seatRepository from "../../repository/seatRepository.js";
+import { cacheWrapper } from "../../utils/cache.js";
 
 import { ApiError } from "../../utils/errorHandler.js";
 
@@ -11,10 +12,15 @@ export const fetchProfile = async (id) => {
     if (!id) {
       throw new ApiError("User ID is required", 400);
     }
-    const user = await userRepository.getUserById(id);
-    if (!user) {
-      throw new ApiError("User not found", 404);
-    }
+
+    const user = await cacheWrapper(`user:${id}`, id, async () => {
+      const dbUser = await userRepository.getUserById(id);
+      if (!dbUser) {
+        throw new ApiError("User not found", 404);
+      }
+      return dbUser;
+    })
+
     return user;
   } catch (error) {
     throw new ApiError(
@@ -30,11 +36,13 @@ export const fetchShowtime = async (id) => {
       throw new ApiError("Showtime ID is required", 400);
     }
 
-    const showtime = await showtimeRepository.getShowtimeById(id);
-
-    if (!showtime) {
-      throw new ApiError("Showtime is not found", 404);
-    }
+    const showtime = await cacheWrapper(`showtime:${id}`, id, async () => {
+      const dbShowtime = await showtimeRepository.getShowtimeById(id);
+      if (!dbShowtime) {
+        throw new ApiError("Showtime is not found", 404);
+      }
+      return dbShowtime;
+    })
 
     return showtime;
   } catch (error) {
@@ -45,21 +53,21 @@ export const fetchShowtime = async (id) => {
   }
 };
 
-export const fetchShowtimesOfMovie = async (date, movieId) => {
+export const fetchShowtimesOfMovie = async (movieId) => {
   try {
     if (!movieId) {
       throw new ApiError("Movie ID is required", 400);
     }
 
-    if (!date) {
-      throw new ApiError("Date is required", 400);
-    }
-
-    const showtimes = await showtimeRepository.getMovieShowtimesofTheDay(movieId, date);
-
-    if (showtimes.length === 0) {
-      throw new ApiError("Showtimes not found", 404);
-    }
+    const showtimes = await cacheWrapper(`showtimesOfMovie:${movieId}`, movieId, async () => {
+      const dbShowtimes = await showtimeRepository.getAllShowtimesForMovie(
+        movieId,
+      );
+      if (!dbShowtimes || dbShowtimes.length === 0) {
+        throw new ApiError("Showtime is not found", 404);
+      }
+      return dbShowtimes;
+    })
 
     return showtimes;
   } catch (error) {
@@ -70,15 +78,16 @@ export const fetchShowtimesOfMovie = async (date, movieId) => {
   }
 };
 
-
 export const fetchAllShowtimes = async () => {
   try {
-    const showtimes = await showtimeRepository.getAllShowtimes();
+    const showtimes = await cacheWrapper("showtimes", "all", async () => {
+      const dbShowtimes = await showtimeRepository.getAllShowtimes();
+      if (!dbShowtimes || dbShowtimes.length === 0) {
+        throw new ApiError("Showtime is not found", 404);
+      }
+      return dbShowtimes;
+    })
 
-    if (!showtimes) {
-      throw new ApiError("Showtimes not found", 404);
-    }
-    
     return showtimes;
   } catch (error) {
     throw new ApiError(
@@ -98,10 +107,17 @@ export const fetchBooking = async (bookingId, userId) => {
       throw new ApiError("User ID is required", 400);
     }
 
-    const booking = await bookingRepository.getBookingById(bookingId, userId);
-    if (!booking) {
-      throw new ApiError("Booking not found", 404);
-    }
+    const cacheId = `${userId}:${bookingId}`;
+    const booking = await cacheWrapper(`booking:${userId}:${bookingId}`, cacheId, async () => {
+      const dbBooking = await bookingRepository.getBookingById(
+        bookingId,
+        userId
+      );
+      if (!dbBooking) {
+        throw new ApiError("Booking not found", 404);
+      }
+      return dbBooking;
+    });
 
     return booking;
   } catch (error) {
@@ -118,10 +134,13 @@ export const fetchAllUserBookings = async (userId) => {
       throw new ApiError("User ID is required", 400);
     }
 
-    const bookings = await bookingRepository.getUserBookings(userId);
-    if (!bookings) {
-      throw new ApiError("Bookings not found", 404);
-    }
+    const bookings = await cacheWrapper(`bookings:${userId}`, userId, async () => {
+      const dbBookings = await bookingRepository.getUserBookings(userId);
+      if (!dbBookings || dbBookings.length === 0) {
+        throw new ApiError("Bookings not found", 404);
+      }
+      return dbBookings;
+    })
 
     return bookings;
   } catch (error) {
@@ -132,6 +151,7 @@ export const fetchAllUserBookings = async (userId) => {
   }
 };
 
+// It might be better not to cache this function as it depends on live data, will be handled soon
 export const fetchAvailableSeatsForShowtime = async (showtimeId) => {
   try {
     if (!showtimeId) {
@@ -143,7 +163,10 @@ export const fetchAvailableSeatsForShowtime = async (showtimeId) => {
       throw new ApiError("Showtime not found", 404);
     }
 
-    const seatsWithStatus = await seatRepository.getAvailableSeatsForShowtime(showtimeId, showtime.hallId);
+    const seatsWithStatus = await seatRepository.getAvailableSeatsForShowtime(
+      showtimeId,
+      showtime.hallId
+    );
 
     return seatsWithStatus;
   } catch (error) {
@@ -159,10 +182,13 @@ export const fetchMovie = async (id) => {
     if (!id) {
       throw new ApiError("Movie ID is required", 400);
     }
-    const movie = await movieRepository.getMovieById(id);
-    if (!movie) {
-      throw new ApiError("Movie not found", 404);
-    }
+    const movie = await cacheWrapper(`movie:${id}`, id, async () => {
+      const dbMovie = await movieRepository.getMovieById(id);
+      if (!dbMovie) {
+        throw new ApiError("Movie not found", 404);
+      }
+      return dbMovie;
+    })
     return movie;
   } catch (error) {
     throw new ApiError(
@@ -174,10 +200,13 @@ export const fetchMovie = async (id) => {
 
 export const fetchAllMovies = async () => {
   try {
-    const movies = await movieRepository.getAllMovies();
-    if (!movies) {
-      throw new ApiError("Movies not found", 404);
-    }
+    const movies = await cacheWrapper("movies", "all", async () => {
+      const dbMovies = await movieRepository.getAllMovies();
+      if (!dbMovies) {
+        throw new ApiError("Movies not found", 404);
+      }
+      return dbMovies;
+    })
     return movies;
   } catch (error) {
     throw new ApiError(
@@ -196,12 +225,21 @@ export const fetchShowtimesByMovieAndDate = async (movieId, date) => {
       throw new ApiError("Date is required", 400);
     }
 
-    // Query with the date range
-    const showtimes = await showtimeRepository.getMovieShowtimesOfTheDay(movieId, date);
-    
+    const cacheId = `${movieId}:${date}`;
+    const showtimes = await cacheWrapper(`showtimes:movie${movieId}:${date}`, cacheId, async () => {
+      const dbShowtimes = await showtimeRepository.getMovieShowtimesOfTheDay(
+        movieId,
+        date
+      );
+      if (!dbShowtimes) {
+        throw new ApiError("Showtime is not found", 404);
+      }
+      return dbShowtimes;
+    });
+
     return showtimes;
   } catch (error) {
-    throw new ApiError(
+    if (error instanceof ApiError) throw new ApiError(
       error.message || "Failed to fetch showtimes",
       error.statusCode || 500
     );
