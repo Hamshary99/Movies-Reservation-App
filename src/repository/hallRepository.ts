@@ -116,7 +116,7 @@ export const getHall = async (id: number) => {
     throw new SQLError(
       error.message || "Failed to get hall",
       error.statusCode || 500,
-      error.sqlMessage || "SQL_error"
+      error.sqlMessage || "SQL_error",
     );
   }
 };

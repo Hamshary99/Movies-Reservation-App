@@ -32,9 +32,11 @@ export const postSignup = async (req, res, next) => {
 
     tokenCookieCreator(res, refreshToken);
 
+    const { refresh_token, ...userWithoutRefreshToken } = user;
+
     res.status(201).json({
       message: "Signup successful",
-      user,
+      user: userWithoutRefreshToken,
       accessToken,
     });
   } catch (error) {
@@ -57,9 +59,11 @@ export const postLogin = async (req, res, next) => {
 
     tokenCookieCreator(res, refreshToken);
 
+    const { refresh_token, ...userWithoutRefreshToken } = user; 
+
     res.status(200).json({
       message: "Login successful",
-      user,
+      user: userWithoutRefreshToken,
       accessToken,
     });
   } catch (error) {

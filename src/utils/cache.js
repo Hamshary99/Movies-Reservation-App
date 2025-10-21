@@ -2,9 +2,7 @@ import { redisClient } from "./redis.js";
 
 const DEFAULT_TTL = 600; // 10 minutes
 
-export const cacheWrapper = async (prefix, id, cb, ttl = DEFAULT_TTL) => {
-  const key = `${prefix}:${id}`;
-
+export const cacheWrapper = async (key, cb, ttl = DEFAULT_TTL) => {
   try {
     if (redisClient?.isOpen) {
       const cached = await redisClient.get(key);
@@ -24,6 +22,11 @@ export const cacheWrapper = async (prefix, id, cb, ttl = DEFAULT_TTL) => {
     return data;
   } catch (err) {
     console.error(`Cache error for ${key}:`, err);
-    return await cb();
+    throw err;
   }
+};
+
+// If update or delete occured, we must clear the said cache
+export const clearCache = async (key) => {
+  if (redisClient?.isOpen) await redisClient.del(key);
 };
