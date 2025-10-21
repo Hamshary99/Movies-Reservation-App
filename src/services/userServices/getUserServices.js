@@ -23,6 +23,7 @@ export const fetchProfile = async (id) => {
 
     return user;
   } catch (error) {
+    if (error instanceof ApiError) throw error;
     throw new ApiError(
       error.message || "Failed to fetch profile",
       error.statusCode || 500
@@ -46,6 +47,7 @@ export const fetchShowtime = async (id) => {
 
     return showtime;
   } catch (error) {
+    if (error instanceof ApiError) throw error;
     throw new ApiError(
       error.message || "Failed to fetch showtimes",
       error.statusCode || 500
@@ -71,6 +73,7 @@ export const fetchShowtimesOfMovie = async (movieId) => {
 
     return showtimes;
   } catch (error) {
+    if (error instanceof ApiError) throw error;
     throw new ApiError(
       error.message || "Failed to fetch showtimes",
       error.statusCode || 500
@@ -90,6 +93,7 @@ export const fetchAllShowtimes = async () => {
 
     return showtimes;
   } catch (error) {
+    if (error instanceof ApiError) throw error;
     throw new ApiError(
       error.message || "Failed to fetch showtimes",
       error.statusCode || 500
@@ -120,6 +124,7 @@ export const fetchBooking = async (bookingId, userId) => {
 
     return booking;
   } catch (error) {
+    if (error instanceof ApiError) throw error;
     throw new ApiError(
       error.message || "Failed to fetch booking",
       error.statusCode || 500
@@ -143,6 +148,7 @@ export const fetchAllUserBookings = async (userId) => {
 
     return bookings;
   } catch (error) {
+    if (error instanceof ApiError) throw error;
     throw new ApiError(
       error.message || "Failed to fetch showtimes",
       error.statusCode || 500
@@ -170,6 +176,7 @@ export const fetchAvailableSeatsForShowtime = async (showtimeId) => {
 
     return seatsWithStatus;
   } catch (error) {
+    if (error instanceof ApiError) throw error;
     throw new ApiError(
       error.message || "Failed to fetch available seats",
       error.statusCode || 500
@@ -191,6 +198,7 @@ export const fetchMovie = async (id) => {
     })
     return movie;
   } catch (error) {
+    if (error instanceof ApiError) throw error;
     throw new ApiError(
       error.message || "Failed to fetch movies",
       error.statusCode || 500
@@ -209,6 +217,7 @@ export const fetchAllMovies = async () => {
     })
     return movies;
   } catch (error) {
+    if (error instanceof ApiError) throw error;
     throw new ApiError(
       error.message || "Failed to fetch movies",
       error.statusCode || 500
@@ -238,7 +247,8 @@ export const fetchShowtimesByMovieAndDate = async (movieId, date) => {
 
     return showtimes;
   } catch (error) {
-    if (error instanceof ApiError) throw new ApiError(
+    if (error instanceof ApiError) throw error;
+    throw new ApiError(
       error.message || "Failed to fetch showtimes",
       error.statusCode || 500
     );

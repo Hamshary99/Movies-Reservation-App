@@ -1,5 +1,8 @@
 import * as userRepository from "../../repository/userRepository.js"
 import { ApiError } from "../../utils/errorHandler.js";
+import { cacheWrapper, clearCache, clearCachePattern } from "../../utils/cache.js";
+import { cacheKeys } from "../../utils/cacheKeys.js";
+import { promise } from "zod";
 
 export const updateProfile = async (id, data, userId, userRole) => {
   try {
@@ -21,8 +24,15 @@ export const updateProfile = async (id, data, userId, userRole) => {
     if (data.phone) fieldsToUpdate.phone = data.phone;
 
     const user = await userRepository.userUpdateProfile(id, data);
+
+    await Promise.all([
+      clearCache(cacheKeys.user(targetId)),
+      clearCache(cacheKeys.userBookings(targetId)),
+      clearCachePattern(cacheKeys.booking("*", targetId)),
+    ])
     return user;
   } catch (error) {
+    if (error instanceof ApiError) throw error;
     throw new ApiError(
       error.message || "Failed to update profile",
       error.statusCode || 500

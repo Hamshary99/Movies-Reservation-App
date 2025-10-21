@@ -30,3 +30,17 @@ export const cacheWrapper = async (key, cb, ttl = DEFAULT_TTL) => {
 export const clearCache = async (key) => {
   if (redisClient?.isOpen) await redisClient.del(key);
 };
+
+export const clearCachePattern = async (pattern) => {
+  try {
+    const keys = await redisClient.keys(pattern); // find all matching keys
+    if (keys.length > 0) {
+      await redisClient.del(keys); // delete all
+      console.log(
+        `Cleared ${keys.length} cache keys matching pattern: ${pattern}`
+      );
+    }
+  } catch (err) {
+    console.error("Failed to clear cache pattern:", pattern, err);
+  }
+};

@@ -2,10 +2,11 @@ import * as hallRepository from "../../repository/hallRepository.js";
 import * as hallSchema from "../../models/hallSchema.js";
 import * as movieRepository from "../../repository/movieRepository.js";
 import * as showtimeRepository from "../../repository/showtimeRepository.js";
-
 import { ApiError, SQLError } from "../../utils/errorHandler.js";
-import { error } from "console";
+import { clear, error } from "console";
 import { z } from "zod";
+import { clearCache } from "../../utils/cache.js";
+import { cacheKeys } from "../../utils/cacheKeys.js";
 
 export const createMovie = async (data) => {
   try {
@@ -15,8 +16,14 @@ export const createMovie = async (data) => {
     }
     const movie = await movieRepository.createMovie(data);
 
+    await Promise.all([
+      clearCache(cacheKeys.allMovies()),
+      clearCache(cacheKeys.movie(movie.id)),
+    ]);
+
     return movie;
   } catch (error) {
+    if (error instanceof ApiError) throw error;
     throw new ApiError(
       error.message || "Failed to create movie",
       error.statusCode || 500
@@ -26,22 +33,25 @@ export const createMovie = async (data) => {
 
 export const createHall = async (data) => {
   try {
-    // const parsedData = hallSchema.hallDataVerify.safeParse(data);
-    // if (!parsedData.success) {
-    //   const flatten = parsedData.error.flatten();
-    //   const missingFields = Object.keys(flatten.fieldErrors);
-    //   throw new SQLError(`Validation failed: ${missingFields.join(", ")} field/s are missing or invalid`, 400);
-    // }
-
     const { hall, seats } = await hallRepository.createHall(
       data.hallName,
       data.rows,
       data.columns
     );
 
+    await Promise.all([
+      clearCache(cacheKeys.allHalls()),
+      clearCache(cacheKeys.hall(hall.id)),
+      clearCache(cacheKeys.seatsOfHall(hall.id)),
+    ]);
+
     return { hall, seats };
   } catch (error) {
-    throw error;
+    if (error instanceof ApiError) throw error;
+    throw new ApiError(
+      error.message || "Failed to create a hall",
+      error.statusCode || 500
+    );
   }
 };
 
@@ -56,8 +66,16 @@ export const createShowtime = async (data) => {
     }
 
     const showtime = await showtimeRepository.createShowtime(data);
+
+    await Promise.all([
+      clearCache(cacheKeys.allShowtimes()),
+      clearCache(cacheKeys.showtime(showtime.id)),
+      clearCache(cacheKeys.showtimesOfMovie(showtime.movieId)),
+    ]);
+
     return showtime;
   } catch (error) {
+    if (error instanceof ApiError) throw error;
     throw new ApiError(
       error.message || "Failed to create showtime",
       error.statusCode || 500

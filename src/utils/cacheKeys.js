@@ -1,5 +1,3 @@
-import { all } from "axios";
-
 export const cacheKeys = {
     hall: (HallId) => `hall:${HallId}`,
     allHalls: () => `allHalls`,
