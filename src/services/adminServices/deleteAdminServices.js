@@ -2,7 +2,7 @@ import * as hallRepository from "../../repository/hallRepository.js";
 import * as movieRepository from "../../repository/movieRepository.js";
 import * as showtimeRepository from "../../repository/showtimeRepository.js";
 import { ApiError } from "../../utils/errorHandler.js";
-import { clearCache } from "../../utils/cache.js";
+import { clearCache, clearCachePattern } from "../../utils/cache.js";
 import { cacheKeys } from "../../utils/cacheKeys.js";
 
 export const removeMovie = async (movieId) => {
@@ -132,9 +132,10 @@ export const removeAllShowtimes = async () => {
       clearCachePattern(cacheKeys.showtimesOfMovieByDate("*", "*")),
       clearCachePattern(cacheKeys.availableSeats("*")),
     ])
-    
+
     return showtimes;
   } catch (error) {
+    if (error instanceof ApiError) throw error;
     throw new ApiError(
       error.message || "Failed to delete halls",
       error.statusCode || 500

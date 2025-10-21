@@ -156,23 +156,29 @@ export const fetchAllUserBookings = async (userId) => {
   }
 };
 
-// It might be better not to cache this function as it depends on live data, 
-// it will be handled soon by invalidating the cache after every update, post and delete
+// Since this API relies on live data, we will cache it with relying on the cache deletion mechanism in other APIs
 export const fetchAvailableSeatsForShowtime = async (showtimeId) => {
   try {
     if (!showtimeId) {
       throw new ApiError("Showtime ID is required", 400);
     }
     // Find the showtime
-    const showtime = await showtimeRepository.getShowtimeById(showtimeId);
-    if (!showtime) {
-      throw new ApiError("Showtime not found", 404);
-    }
+    const showtime = await cacheWrapper(cacheKeys.showtime(showtimeId), async () => {
+      const dbShowtime = await showtimeRepository.getShowtimeById(showtimeId);
+      if (!dbShowtime) {
+        throw new ApiError("Showtime not found", 404);
+      }
+      return dbShowtime;
+    })
 
-    const seatsWithStatus = await seatRepository.getAvailableSeatsForShowtime(
-      showtimeId,
-      showtime.hallId
-    );
+    // Find the available seats
+    const seatsWithStatus = await cacheWrapper(cacheKeys.availableSeats(showtimeId), async () => {
+      const dbSeatsWithStatus = await bookingRepository.getAvailableSeatsForShowtime(showtimeId);
+      if (!dbSeatsWithStatus || dbSeatsWithStatus.length === 0) {
+        throw new ApiError("Available seats not found", 404);
+      }
+      return dbSeatsWithStatus;
+    })
 
     return seatsWithStatus;
   } catch (error) {

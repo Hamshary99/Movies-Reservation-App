@@ -4,7 +4,7 @@ import { db } from "../../repository/dbConfig.js";
 import * as bookingRepository from "../../repository/bookingRepository.js";
 import * as showtimeRepository from "../../repository/showtimeRepository.js";
 import * as userRepository from "../../repository/userRepository.js";
-import { cacheWrapper, clearCache } from "../../utils/cache.js";
+import { cacheWrapper, clearCache, clearCachePattern } from "../../utils/cache.js";
 import { cacheKeys } from "../../utils/cacheKeys.js";
 import { redisClient } from "../../utils/redis.js";
 
