@@ -55,7 +55,8 @@ export const checkoutPayment = async (bookingDetails, seatIds, showtimeId, user)
     throw new StripeError(
       error.message || "Stripe payment method confirmation failed",
       error.statusCode || 400,
-      error.type || "stripe_error"
+      error.type || "stripe_error",
+      error
     );
   }
 };
@@ -101,7 +102,8 @@ export const refundPayment = async (checkoutSessionId, bookingDetails) => {
     throw new StripeError(
       error.message || "Refund failed",
       error.statusCode || 400,
-      error.type || "stripe_error"
+      error.type || "stripe_error",
+      error
     );
   }
 };

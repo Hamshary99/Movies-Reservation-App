@@ -3,17 +3,20 @@ import { ApiError } from "../../utils/errorHandler.js";
 import { cacheWrapper, clearCache, clearCachePattern } from "../../utils/cache.js";
 import { cacheKeys } from "../../utils/cacheKeys.js";
 import { promise } from "zod";
+import logger from "../../utils/logger.js";
 
-export const updateProfile = async (id, data, userId, userRole) => {
+export const updateProfile = async (userId, data, selectedUserId, userRole) => {
   try {
-    if (!id) {
+    if (!userId) {
+      logger.warn("User ID is missing in updateProfile", { userId });
       throw new ApiError("User ID is required", 400);
     }
 
     let targetId = userId;
-    if (userRole === "admin" && id) {
+    if (userRole === "admin" && selectedUserId) {
       targetId = id;
     } else if (id !== userId) {
+      logger.warn("Unauthorized profile update attempt", { userId, targetId });
       throw new ApiError("You can only update your own profile", 403);
     }
 
@@ -23,7 +26,8 @@ export const updateProfile = async (id, data, userId, userRole) => {
     if (data.email) fieldsToUpdate.email = data.email;
     if (data.phone) fieldsToUpdate.phone = data.phone;
 
-    const user = await userRepository.userUpdateProfile(id, data);
+    logger.debug("Updating user profile", { userId: targetId, fields: Object.keys(fieldsToUpdate) });
+    const user = await userRepository.userUpdateProfile(targetId, data);
 
     await Promise.all([
       clearCache(cacheKeys.user(targetId)),
@@ -32,10 +36,12 @@ export const updateProfile = async (id, data, userId, userRole) => {
     ])
     return user;
   } catch (error) {
+    logger.error("Error in updateProfile", { userId, message: error.message, stack: error.stack });
     if (error instanceof ApiError) throw error;
     throw new ApiError(
       error.message || "Failed to update profile",
-      error.statusCode || 500
+      error.statusCode || 500,
+      error
     );
   }
 };

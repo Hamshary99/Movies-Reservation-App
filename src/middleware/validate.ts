@@ -8,13 +8,13 @@ export const validate =
       const result = schema.safeParse(req.body);
 
       if (!result.success) {
-        const issues = result.error.issues.map((err : any) => ({
+        const issues = result.error.issues.map((err: any) => ({
           field: err.path.join("."),
           message: err.message,
         }));
 
         // @ts-ignore
-        throw new ApiError(`Validation failed`, 400, 'validation_error', issues);
+        throw new ApiError(`Validation failed`, 400, 'validation_error', null, issues);
       }
 
       // replace req.body with parsed data (properly typed & sanitized)

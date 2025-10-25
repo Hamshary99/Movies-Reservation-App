@@ -7,13 +7,27 @@ import { clear, error } from "console";
 import { z } from "zod";
 import { clearCache } from "../../utils/cache.js";
 import { cacheKeys } from "../../utils/cacheKeys.js";
+import logger from "../../utils/logger.js";
+
+const handleServiceError = (message, error, context = {}) => {
+  logger.error(message, {
+    message: error.message,
+    stack: error.stack,
+    ...context,
+  });
+  if (error instanceof ApiError) throw error;
+  throw new ApiError(error.message || message, error.statusCode || 500, error);
+};
 
 export const createMovie = async (data) => {
   try {
     const isMovieExist = await movieRepository.getMovieByTitle(data.title);
     if (isMovieExist) {
+      logger.warn("Movie with this title already exists", { title: data.title });
       throw new ApiError("Movie with this title already exists", 400);
     }
+
+    logger.debug("Creating new movie", { data });
     const movie = await movieRepository.createMovie(data);
 
     await Promise.all([
@@ -23,16 +37,13 @@ export const createMovie = async (data) => {
 
     return movie;
   } catch (error) {
-    if (error instanceof ApiError) throw error;
-    throw new ApiError(
-      error.message || "Failed to create movie",
-      error.statusCode || 500
-    );
+    handleServiceError("Failed to create a movie", error);
   }
 };
 
 export const createHall = async (data) => {
   try {
+    logger.debug("Creating new hall", { data });
     const { hall, seats } = await hallRepository.createHall(
       data.hallName,
       data.rows,
@@ -44,24 +55,23 @@ export const createHall = async (data) => {
       clearCache(cacheKeys.hall(hall.id)),
       clearCache(cacheKeys.seatsOfHall(hall.id)),
     ]);
+    logger.debug("Created new hall", { hall, seats, seatsCount: seats.length });
 
     return { hall, seats };
   } catch (error) {
-    if (error instanceof ApiError) throw error;
-    throw new ApiError(
-      error.message || "Failed to create a hall",
-      error.statusCode || 500
-    );
+    handleServiceError("Failed to create a hall", error);
   }
 };
 
 export const createShowtime = async (data) => {
   try {
+    logger.debug("Creating new showtime", { data });
     const isExist = await showtimeRepository.checkShowtimeAvailability(
       data.date,
       data.time
     );
     if (isExist) {
+      logger.warn("Showtime on this date and time already exists", { date: data.date, time: data.time });
       throw new ApiError("Showtime on this date and time already exists", 400);
     }
 
@@ -75,10 +85,6 @@ export const createShowtime = async (data) => {
 
     return showtime;
   } catch (error) {
-    if (error instanceof ApiError) throw error;
-    throw new ApiError(
-      error.message || "Failed to create showtime",
-      error.statusCode || 500
-    );
+    handleServiceError("Failed to create showtime", error);
   }
 };

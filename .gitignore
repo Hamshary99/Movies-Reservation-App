@@ -4,3 +4,4 @@
 /auth.http
 /drizzle
 /drizzle/migration
+/logs

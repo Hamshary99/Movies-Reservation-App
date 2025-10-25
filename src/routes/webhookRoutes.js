@@ -1,7 +1,6 @@
 import express from "express";
 import Stripe from "stripe";
 import * as bookingRepository from "../repository/bookingRepository.js";
-import { StripeError } from "../utils/errorHandler.js";
 import { db } from "../repository/dbConfig.js";
 
 const webhookRouter = express.Router();

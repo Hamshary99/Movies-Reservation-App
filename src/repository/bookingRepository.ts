@@ -63,8 +63,15 @@ export const createBooking = async (
   showtimePrice: number
 ) => {
   try {
+    
     const totalPrice = showtimePrice * seatIds.length;
 
+    console.log("Inserting booking into DB:", {
+      userId,
+      showtimeId,
+      totalPrice,
+    });
+    
     const booking = await db
       .insert(bookingDB.bookingTable)
       .values({
