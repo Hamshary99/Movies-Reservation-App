@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import { ApiError, SQLError } from "../utils/errorHandler.js";
+import { ApiError } from "../utils/errorHandler.js";
 import { sendEmail } from "../utils/email.js";
 import jwt from "jsonwebtoken";
 import * as signupRepository from "../repository/userRepository.js";

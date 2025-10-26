@@ -9,7 +9,7 @@ import rateLimit from "express-rate-limit"; // To avoid brute force attacks
 import helmet from "helmet"; // To set security-related HTTP headers
 // import xss from "xss-clean"; // To sanitize user input against XSS attacks
 import hpp from "hpp"; // To protect against HTTP Parameter Pollution attacks
-
+import logger from "./utils/logger.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import loginRoutes from "./routes/loginRoutes.js";
@@ -88,6 +88,15 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
 
 
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  logger.info(`Server is running on port ${PORT}`, { env: process.env.NODE_ENV || "development" });
 });
 
+// Handle uncaught errors
+process.on("uncaughtException", (err) => {
+  logger.error("Uncaught Exception", { message: err.message, stack: err.stack });
+  process.exit(1);
+});
+
+process.on("unhandledRejection", (reason, promise) => {
+  logger.error("Unhandled Rejection", { reason });
+});

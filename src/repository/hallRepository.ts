@@ -63,7 +63,8 @@ export const createHall = async (
     throw new SQLError(
       error.message || "Failed to create hall",
       error.statusCode || 500,
-      error.sqlMessage || "SQL_error"
+      error.sqlMessage || "SQL_error",
+      error
     );
   }
 };
@@ -84,7 +85,8 @@ export const getHalls = async () => {
     throw new SQLError(
       error.message || "Failed to get halls",
       error.statusCode || 500,
-      error.sqlMessage || "SQL_error"
+      error.sqlMessage || "SQL_error",
+      error
     );
   }
 };
@@ -117,6 +119,7 @@ export const getHall = async (id: number) => {
       error.message || "Failed to get hall",
       error.statusCode || 500,
       error.sqlMessage || "SQL_error",
+      error
     );
   }
 };
@@ -153,7 +156,7 @@ export const updateHall = async (
           .delete(seatSchema.seatsTable)
           .where(eq(seatSchema.seatsTable.hall, id));
       } catch (error: any) {
-        throw new SQLError(`Failed to delete existing seats: ${error}`, 500, "SQL_error");
+        throw new SQLError(`Failed to delete existing seats: ${error}`, 500, "SQL_error", error);
       }
 
       const seats: any[] = [];
@@ -175,7 +178,7 @@ export const updateHall = async (
         .values(seats)
         .returning()
         .catch((error: any) => {
-          throw new SQLError(`Failed to create seats: ${error}`, 500, "SQL_error");
+          throw new SQLError(`Failed to create seats: ${error}`, 500, "SQL_error", error);
         });
 
       return { hall: isHallExist[0], seats: seatsOfHall };
@@ -184,7 +187,8 @@ export const updateHall = async (
     throw new SQLError(
       error.message || "Failed to update hall",
       error.statusCode || 500,
-      error.sqlMessage || "SQL_error"
+      error.sqlMessage || "SQL_error",
+      error
     );
   }
 };
@@ -201,7 +205,8 @@ export const deleteHalls = async () => {
     throw new SQLError(
       error.message || "Failed to delete halls",
       error.statusCode || 500,
-      error.sqlMessage || "SQL_error"
+      error.sqlMessage || "SQL_error",
+      error
     );
   }
 };
@@ -222,7 +227,8 @@ export const deleteHall = async (id: number) => {
     throw new SQLError(
       error.message || "Failed to delete hall",
       error.statusCode || 500,
-      error.sqlMessage || "SQL_error"
+      error.sqlMessage || "SQL_error",
+      error
     );
   }
 };

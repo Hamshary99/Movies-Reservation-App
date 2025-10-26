@@ -1,4 +1,5 @@
 import redis from "redis";
+import logger from "./logger";
 
 export const redisClient = redis.createClient({
   url: process.env.REDIS_URL || "redis://localhost:6379",
@@ -6,12 +7,12 @@ export const redisClient = redis.createClient({
 
 // Handle connection errors
 redisClient.on("error", (err) => {
-  console.error("Redis connection error:", err);
+  logger.error("Redis connection error", { message: err.message, stack: err.stack });
 });
 
 // Handle successful connection
 redisClient.on("connect", () => {
-  console.log("Redis connected successfully");
+  logger.info("Redis connected successfully");
 });
 
 // Connect safely
@@ -19,7 +20,7 @@ redisClient.on("connect", () => {
   try {
     await redisClient.connect();
   } catch (err) {
-    console.error("Failed to connect to Redis:", err);
+    logger.error("Failed to connect to Redis", { message: err.message, stack: err.stack });
   }
 })();
 

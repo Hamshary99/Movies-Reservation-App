@@ -12,13 +12,6 @@ export const sendEmail = async (options) => {
         },
     });
 
-    // console.log("Email transporter created:", {
-    //     host: process.env.EMAIL_HOST,
-    //     port: process.env.EMAIL_PORT,
-    //     user: process.env.EMAIL_USERNAME,
-    //     pass: process.env.EMAIL_PASSWORD
-    // });
-
     // Define the email options
     const mailOptions = {
         from: "Cinema Booking App <AbsoluteCinema@Kino.io> ",

@@ -2,7 +2,7 @@ import * as hallRepository from "../../repository/hallRepository.js";
 import * as hallSchema from "../../models/hallSchema.js";
 import * as movieRepository from "../../repository/movieRepository.js";
 import * as showtimeRepository from "../../repository/showtimeRepository.js";
-import { ApiError, SQLError } from "../../utils/errorHandler.js";
+import { ApiError } from "../../utils/errorHandler.js";
 import { clear, error } from "console";
 import { z } from "zod";
 import { clearCache } from "../../utils/cache.js";

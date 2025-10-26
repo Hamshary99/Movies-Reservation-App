@@ -51,7 +51,8 @@ export const checkSeatAvailability = async (
     throw new SQLError(
       error.message || "Failed to check seat availability.",
       error.statusCode || 500,
-      error.sqlMessage || "SQL_error"
+      error.sqlMessage || "SQL_error",
+      error
     );
   }
 };
@@ -63,14 +64,7 @@ export const createBooking = async (
   showtimePrice: number
 ) => {
   try {
-    
     const totalPrice = showtimePrice * seatIds.length;
-
-    console.log("Inserting booking into DB:", {
-      userId,
-      showtimeId,
-      totalPrice,
-    });
     
     const booking = await db
       .insert(bookingDB.bookingTable)
@@ -80,6 +74,7 @@ export const createBooking = async (
         totalPrice,
       })
       .returning();
+    
     if (!booking[0]) {
       throw new SQLError(500, "Failed to create booking.");
     }
@@ -89,7 +84,8 @@ export const createBooking = async (
     throw new SQLError(
       error.message || "Failed to create booking.",
       error.statusCode || 500,
-      error.sqlMessage || "SQL_error"
+      error.sqlMessage || "SQL_error",
+      error
     );
   }
 };
@@ -113,7 +109,8 @@ export const confirmBooking = async (bookingId: number) => {
     throw new SQLError(
       error.message || "Failed to confirm booking.",
       error.statusCode || 500,
-      error.sqlMessage || "SQL_error"
+      error.sqlMessage || "SQL_error",
+      error
     );
   }
 };
@@ -131,7 +128,8 @@ export const addPaymentId = async (bookingId: number, paymentId: string) => {
     throw new SQLError(
       error.message || "Failed to add payment ID.",
       error.statusCode || 500,
-      error.sqlMessage || "SQL_error"
+      error.sqlMessage || "SQL_error",
+      error
     );
   }
 };
@@ -161,7 +159,8 @@ export const addSeatsToBooking = async (
     throw new SQLError(
       error.message || "Failed to add seats to booking.",
       error.statusCode || 500,
-      error.sqlMessage || "SQL_error"
+      error.sqlMessage || "SQL_error",
+      error
     );
   }
 };
@@ -243,7 +242,8 @@ export const getBookingById = async (BookingId: number, userId: UUID) => {
     throw new SQLError(
       error.message || "Failed to fetch booking",
       error.statusCode || 500,
-      "SQL_error"
+      "SQL_error",
+      error
     );
   }
 };
@@ -322,7 +322,8 @@ export const getUserBookings = async (userId: UUID) => {
     throw new SQLError(
       error.message || "Failed to fetch bookings",
       error.statusCode || 500,
-      "SQL_error"
+      "SQL_error",
+      error
     );
   }
 };
@@ -343,7 +344,8 @@ export const cancelBooking = async (bookingId: number) => {
     throw new SQLError(
       error.message || "Failed to cancel booking",
       error.statusCode || 500,
-      "SQL_error"
+      "SQL_error",
+      error
     );
   }
 };
@@ -377,7 +379,8 @@ export const revokeBookingAfterRefund = async (bookingId: number) => {
     throw new SQLError(
       error.message || "Failed to revoke booking",
       error.statusCode || 500,
-      "SQL_error"
+      "SQL_error",
+      error
     );
   }
 };

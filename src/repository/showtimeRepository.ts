@@ -2,7 +2,6 @@ import * as showtimeSchema from "../models/showtimeSchema.js";
 import { db } from "./dbConfig.js";
 import { eq, and } from "drizzle-orm";
 import { ApiError, SQLError } from "../utils/errorHandler.js";
-
 import * as movieSchema from "../models/movieSchema.js";
 import * as hallSchema from "../models/hallSchema.js";
 import { UUID } from "crypto";
@@ -24,7 +23,8 @@ export const createShowtime = async (
     throw new SQLError(
       error.message || "Failed to create showtime",
       error.statusCode || 500,
-      error.sqlMessage || "SQL_error"
+      error.sqlMessage || "SQL_error",
+      error
     );
   }
 };
@@ -65,7 +65,8 @@ export const getShowtimeById = async (id: UUID) => {
     throw new SQLError(
       error.message || "Failed to fetch showtime",
       error.statusCode || 500,
-      error.sqlMessage || "SQL_error"
+      error.sqlMessage || "SQL_error",
+      error
     );
   }
 };
@@ -87,7 +88,8 @@ export const checkShowtimeAvailability = async (date: string, time: string) => {
     throw new SQLError(
       error.message || "Failed to check for showtime availability",
       error.statusCode || 500,
-      error.sqlMessage || "SQL_error"
+      error.sqlMessage || "SQL_error",
+      error
     );
   }
 };
@@ -124,7 +126,8 @@ export const getAllShowtimesForMovie = async (movieId: string) => {
     throw new SQLError(
       error.message || "Failed to fetch showtimes",
       error.statusCode || 500,
-      error.sqlMessage || "SQL_error"
+      error.sqlMessage || "SQL_error",
+      error
     );
   }
 };
@@ -138,7 +141,8 @@ export const getAllShowtimes = async () => {
     throw new SQLError(
       error.message || "Failed to fetch showtimes",
       error.statusCode || 500,
-      error.sqlMessage || "SQL_error"
+      error.sqlMessage || "SQL_error",
+      error
     );
   }
 };
@@ -169,7 +173,8 @@ export const getMovieShowtimesOfTheDay = async (
     throw new SQLError(
       error.message || "Failed to fetch showtime",
       error.statusCode || 500,
-      error.sqlMessage || "SQL_error"
+      error.sqlMessage || "SQL_error",
+      error
     );
   }
 };
@@ -190,7 +195,8 @@ export const updateShowtimeById = async (
     throw new SQLError(
       error.message || "Failed to update showtime",
       error.statusCode || 500,
-      error.sqlMessage || "SQL_error"
+      error.sqlMessage || "SQL_error",
+      error
     );
   }
 };
@@ -209,7 +215,8 @@ export const deleteShowtimeById = async (id: string) => {
     throw new SQLError(
       error.message || "Failed to delete showtime",
       error.statusCode || 500,
-      error.sqlMessage || "SQL_error"
+      error.sqlMessage || "SQL_error",
+      error
     );
   }
 };
@@ -225,7 +232,8 @@ export const deleteShowtimesByMovieId = async (movieId: string) => {
     throw new SQLError(
       error.message || "Failed to delete showtimes",
       error.statusCode || 500,
-      error.sqlMessage || "SQL_error"
+      error.sqlMessage || "SQL_error",
+      error
     );
   }
 };
@@ -241,7 +249,8 @@ export const deleteShowtimesByHallId = async (hallId: number) => {
     throw new SQLError(
       error.message || "Failed to delete showtimes",
       error.statusCode || 500,
-      error.sqlMessage || "SQL_error"
+      error.sqlMessage || "SQL_error",
+      error
     );
   }
 };
@@ -256,7 +265,8 @@ export const deleteAllShowtimes = async () => {
     throw new SQLError(
       error.message || "Failed to delete showtimes",
       error.statusCode || 500,
-      error.sqlMessage || "SQL_error"
+      error.sqlMessage || "SQL_error",
+      error
     );
   }
 };

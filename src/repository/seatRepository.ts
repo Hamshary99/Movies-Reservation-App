@@ -1,5 +1,4 @@
 import * as seatSchema from "../models/index.js";
-import * as showtimeSchema from "../models/index.js";
 import * as bookingSchema from "../models/index.js";
 import * as hallSchema from "../models/index.js";
 import { db } from "./dbConfig.js";
@@ -25,7 +24,8 @@ export const getSeatsByHallId = async (hallId: number) => {
     throw new SQLError(
       error.message || "Failed to get seats",
       error.statusCode || 500,
-      error.sqlMessage || "sql_error"
+      error.sqlMessage || "sql_error",
+      error
     );
   }
 };
@@ -52,7 +52,8 @@ export const getSeatsOfHall = async (hallId: number) => {
     throw new SQLError(
       error.message || "Failed to get seats",
       error.statusCode || 500,
-      error.sqlMessage || "sql_error"
+      error.sqlMessage || "sql_error",
+      error
     );
   }
 }
@@ -101,7 +102,8 @@ export const getAvailableSeatsForShowtime = async (
     throw new SQLError(
       error.message || "Failed to get available seats",
       error.statusCode || 500,
-      error.sqlMessage || "sql_error"
+      error.sqlMessage || "sql_error",
+      error
     );
   }
 };

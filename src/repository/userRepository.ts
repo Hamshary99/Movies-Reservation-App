@@ -36,14 +36,15 @@ export const createUser = async (
   } catch (error: any) {
     // console.warn("The said ERROR: ", error.cause);
     if (error.cause?.code === "23505")
-      throw new SQLError(`User already exists`, 400, "SQL_error");
+      throw new SQLError(`User already exists`, 400, "SQL_error", error);
     else if (error.cause?.code === "23502")
-      throw new SQLError(`Missing required fields`, 400, "SQL_error");
+      throw new SQLError(`Missing required fields`, 400, "SQL_error", error);
     else
       throw new SQLError(
         error.message || "Failed to create user",
         error.statusCode || 500,
-        "SQL_error"
+        "SQL_error",
+        error
       );
   }
 };
@@ -79,7 +80,8 @@ export const getUserByEmail = async (
     throw new SQLError(
       error.message || "Failed to get user",
       error.statusCode || 500,
-      "SQL_error"
+      "SQL_error",
+      error
     );
   }
 };
@@ -112,7 +114,8 @@ export const getUserById = async (
     throw new SQLError(
       error.message || "Failed to get user",
       error.statusCode || 500,
-      "SQL_error"
+      "SQL_error",
+      error
     );
   }
 };
@@ -142,7 +145,8 @@ export const getUserRefreshToken = async (userId: UUID) => {
     throw new SQLError(
       error.message || "Failed to get user",
       error.statusCode || 500,
-      "SQL_error"
+      "SQL_error",
+      error
     );
   }
 }
@@ -219,11 +223,12 @@ If you did not request this, you can safely ignore this email.
     return { message };
   } catch (error: any) {
     if (error.cause?.code === "23502")
-      throw new SQLError(`Missing required fields`, 400, "SQL_error");
+      throw new SQLError(`Missing required fields`, 400, "SQL_error", error);
     throw new SQLError(
       error.message || "Failed to reset password",
       error.statusCode || 500,
-      error.sqlMessage || "sql_error"
+      error.sqlMessage || "sql_error",
+      error
     );
   }
 };
@@ -294,7 +299,8 @@ export const userResetPassword = async (
     throw new SQLError(
       error.message || "Failed to update password",
       error.statusCode || 500,
-      "SQL_error"
+      "SQL_error",
+      error
     );
   }
 };
@@ -361,7 +367,8 @@ export const userPatchPassword = async (
     throw new SQLError(
       error.message || "Failed to update password",
       error.statusCode || 500,
-      "SQL_error"
+      "SQL_error",
+      error
     );
   }
 };
@@ -391,7 +398,8 @@ export const userUpdateProfile = async (userID: UUID, data: any) => {
     throw new SQLError(
       error.message || "Failed to update profile",
       error.statusCode || 500,
-      "SQL_error"
+      "SQL_error",
+      error
     );
   }
 };
@@ -407,7 +415,8 @@ export const saveRefreshToken = async (userId: UUID, token: string) => {
     throw new SQLError(
       error.message || "Failed to save refresh token",
       error.statusCode || 500,
-      "SQL_error"
+      "SQL_error",
+      error
     );
   }
 };
@@ -423,7 +432,8 @@ export const removeRefreshToken = async (userId: UUID) => {
     throw new SQLError(
       error.message || "Failed to remove refresh token",
       error.statusCode || 500,
-      "SQL_error"
+      "SQL_error",  
+      error
     );
   }
 };
@@ -439,7 +449,8 @@ export const setUserInactive = async (userId: UUID) => {
     throw new SQLError(
       error.message || "Failed to set user inactive",
       error.statusCode || 500,
-      "SQL_error"
+      "SQL_error",  
+      error
     );
   }
 };

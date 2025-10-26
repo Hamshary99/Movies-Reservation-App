@@ -15,7 +15,13 @@ export class StripeError extends Error {
   }
 }
 export class ApiError extends Error {
-  constructor(message, statusCode, type = "api_error", cause = null, details = null) {
+  constructor(
+    message,
+    statusCode,
+    type = "api_error",
+    cause = null,
+    details = null
+  ) {
     try {
       super(message, { cause });
     } catch (error) {
@@ -33,12 +39,19 @@ export class ApiError extends Error {
 }
 
 export class SQLError extends Error {
-  constructor(message, statusCode, type = "SQL_error", fieldErrors = null) {
-    super(message);
+  constructor(message, statusCode, type = "SQL_error", cause = null) {
+    try {
+      super(message, { cause });
+    } catch (error) {
+      super(message);
+    }
     this.statusCode = statusCode;
     this.name = "SQLError";
     this.type = type;
     this.fieldErrors = fieldErrors;
+    if (cause?.stack) {
+      this.stack = `${this.stack || ""}\nCaused by: ${cause.stack}`;
+    }
   }
 }
 

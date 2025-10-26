@@ -19,7 +19,8 @@ export const createMovie = async (movieData: movieSchema.NewMovie) => {
     throw new SQLError(
       error.message || "Failed to create movie",
       error.statusCode || 500,
-      error.sqlMessage || "SQL_error"
+      error.sqlMessage || "SQL_error",
+      error
     );
   }
 };
@@ -39,7 +40,8 @@ export const getMovieById = async (id: string) => {
     throw new SQLError(
       error.message || "Failed to fetch movie",
       error.statusCode || 500,
-      error.sqlMessage || "sql_error"
+      error.sqlMessage || "sql_error",
+      error
     );
   }
 };
@@ -56,7 +58,8 @@ export const getMovieByTitle = async (title: string) => {
     throw new SQLError(
       error.message || "Failed to fetch movie",
       error.statusCode || 500,
-      error.sqlMessage || "sql_error"
+      error.sqlMessage || "sql_error",
+      error
     );
   }
 };
@@ -72,7 +75,8 @@ export const getAllMovies = async () => {
     throw new SQLError(
       error.message || "Failed to fetch movies",
       error.statusCode || 500,
-      error.sqlMessage || "sql_error"
+      error.sqlMessage || "sql_error",
+      error
     );
   }
 };
@@ -96,7 +100,8 @@ export const updateMovieById = async (
     throw new SQLError(
       error.message || "Failed to update movie",
       error.statusCode || 500,
-      error.sqlMessage || "sql_error"
+      error.sqlMessage || "sql_error",
+      error
     );
   }
 };
@@ -115,7 +120,8 @@ export const deleteMovieById = async (id: string) => {
     throw new SQLError(
       error.message || "Failed to delete movie",
       error.statusCode || 500,
-      error.sqlMessage || "sql_error"
+      error.sqlMessage || "sql_error",
+      error
     );
   }
 };
@@ -128,7 +134,8 @@ export const deleteAllMovies = async () => {
     throw new SQLError(
       error.message || "Failed to delete movies",
       error.statusCode || 500,
-      error.sqlMessage || "sql_error"
+      error.sqlMessage || "sql_error",
+      error
     );
   }
 };
