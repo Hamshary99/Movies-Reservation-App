@@ -16,7 +16,6 @@
     "checkJs": false, // <--- don’t type-check .js
     // "noEmit": true,
     "noEmit": false,
-
     // "allowImportingTsExtensions": true
   },
   "ts-node": {

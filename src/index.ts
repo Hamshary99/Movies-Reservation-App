@@ -15,7 +15,7 @@ import userRoutes from "./routes/userRoutes.js";
 import loginRoutes from "./routes/loginRoutes.js";
 // import employeeRoutes from './routes/employeeRoutes.js';
 import webhookRouter from "./routes/webhookRoutes.js";
-
+import { loggerMiddleware } from "./middleware/loggerMiddleware.js";
 import { handleError } from "./utils/errorHandler.js";
 
 
@@ -44,10 +44,11 @@ app.use(
   })
 );
 
+// Custom logger middleware
+app.use(loggerMiddleware);
 
 // Must be before express.json() to parse raw body for Stripe webhook
 app.use("/stripe", webhookRouter);
-
 
 // Reading and parsing JSON and URL-encoded data from req.body
 app.use(express.json({ limit: '10kb' })); // Limit the amount of data, to protect from DOS attacks

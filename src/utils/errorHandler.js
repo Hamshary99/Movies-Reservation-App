@@ -1,4 +1,3 @@
-import { stack } from "sequelize/types/utils.js";
 import logger from "./logger.js";
 import { randomUUID } from "crypto";
 
@@ -75,7 +74,6 @@ export const handleError = (err, req, res, next) => {
   logError(errorType, err, req, requestId);
 
   const response = {
-    requestId,
     status: "error",
     type: errorType || "unexpected_error",
     message: err.message || "Unexpected error",
