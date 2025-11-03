@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Grid, Typography, Box, CircularProgress, Alert } from "@mui/material";
-import { movieService } from "../services/api";
+import { userMovieService as movieService } from "../services/api";
 import DatePicker from "../components/movies/DatePicker";
 import ShowtimesList from "../components/movies/ShowtimesList";
 import MovieInfo from "../components/movies/MovieInfo";

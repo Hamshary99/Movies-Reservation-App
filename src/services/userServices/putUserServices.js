@@ -13,9 +13,9 @@ export const updateProfile = async (userId, data, selectedUserId, userRole) => {
     }
 
     let targetId = userId;
-    if (userRole === "admin" && selectedUserId) {
-      targetId = id;
-    } else if (id !== userId) {
+    if ((userRole === "admin") || selectedUserId === userId) {
+      targetId = selectedUserId;
+    } else if (targetId !== userId) {
       logger.warn("Unauthorized profile update attempt", { userId, targetId });
       throw new ApiError("You can only update your own profile", 403);
     }

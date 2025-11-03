@@ -1,6 +1,7 @@
 // User services
 export { userMovieService } from "./user/movies";
 export { userBookingService } from "./user/bookings";
+export { userProfileService } from "./user/profile";
 // Provide aliases for showtime-related operations which live in user/movies
 export { userMovieService as userShowtimeService } from "./user/movies";
 

@@ -12,7 +12,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { bookingService } from "../services/api";
+import { userBookingService as bookingService } from "../services/api";
 
 const MyBookingsPage = () => {
   const [bookings, setBookings] = useState([]);

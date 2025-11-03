@@ -104,8 +104,6 @@ export const getUserById = async (
       password: _password, // Exclude password from returned user, named as _password because password is a reserved word
       passwordResetExpires,
       passwordResetToken,
-      createdAt,
-      updatedAt,
       // refresh_token,
       ...userWithoutPassword
     } = user[0]; // Exclude password from returned user

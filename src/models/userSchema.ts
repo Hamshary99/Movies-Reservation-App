@@ -41,6 +41,7 @@ export type NewUser = typeof usersTable.$inferInsert;
 export type UserWithoutPassword = Omit<
   User,
   | "password"
+  | "passwordChangedAt"
   | "passwordResetToken"
   | "passwordResetExpires"
   | "createdAt"

@@ -8,7 +8,7 @@ import {
   CircularProgress,
   Alert,
 } from "@mui/material";
-import { bookingService } from "../services/api";
+import { userBookingService as bookingService } from "../services/api";
 import { format } from "date-fns";
 import "../styles/pages/PaymentSuccess.css";
 

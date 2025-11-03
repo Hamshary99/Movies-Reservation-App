@@ -1,5 +1,6 @@
 /node_modules
 /Client/node_modules
+/Client/.env
 /.env
 /auth.http
 /drizzle

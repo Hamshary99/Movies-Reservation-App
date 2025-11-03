@@ -18,7 +18,7 @@
     "stripe:trigger:complete": "stripe trigger checkout.session.completed",
     "stripe:trigger:cancel": "stripe trigger checkout.session.expired",
     "dev:all": "concurrently \"npm run server\" \"npm run client\" \"npm run stripe:listen\" \"npm run studio\"",
-    "dev:app": "concurrently \"npm run server\" \"npm run client\""
+    "dev:app": "concurrently \"npm run server\" \"npm run client\" \"npm run studio\""
   },
   "type": "module",
   "author": "",

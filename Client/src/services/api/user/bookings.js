@@ -3,7 +3,6 @@ import api from "../apiConfig";
 export const userBookingService = {
   createBooking: async (bookingData) => {
     const response = await api.post("/user/booking", bookingData);
-    console.log("Booking response from service:", response);
     return response.data;
   },
 

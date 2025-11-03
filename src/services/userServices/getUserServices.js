@@ -36,9 +36,19 @@ export const fetchProfile = async (userId) => {
         logger.warn("User not found", { userId });
         throw new ApiError("User not found", 404);
       }
-      return dbUser;
+      const {
+        password,
+        passwordChangedAt,
+        refresh_token,
+        passwordResetToken,
+        passwordResetExpires,
+        ...safeUser
+      } = dbUser;
+
+      return safeUser;
     });
 
+    
     return user;
   } catch (error) {
     handleServiceError("Failed to fetch user profile", error, { userId });
@@ -179,16 +189,6 @@ export const fetchAvailableSeatsForShowtime = async (showtimeId) => {
       return dbShowtime;
     });
 
-    // Find the available seats
-    // const seatsWithStatus = await cacheWrapper(cacheKeys.availableSeats(showtimeId), async () => {
-    //   const dbSeatsWithStatus = await bookingRepository.getAvailableSeatsForShowtime(showtimeId);
-    //   if (!dbSeatsWithStatus || dbSeatsWithStatus.length === 0) {
-    //     logger.warn("Available seats not found", { showtimeId });
-    //     throw new ApiError("Available seats not found", 404);
-    //   }
-    //   return dbSeatsWithStatus;
-    // });
-
     const seatsWithStatus = await bookingRepository.getAvailableSeatsForShowtime(showtimeId);
 
     return seatsWithStatus;
@@ -219,6 +219,7 @@ export const fetchMovie = async (movieId) => {
 
 export const fetchAllMovies = async () => {
   try {
+    logger.debug("Fetching all movies");
     const movies = await cacheWrapper(cacheKeys.allMovies(), async () => {
       const dbMovies = await movieRepository.getAllMovies();
       if (!dbMovies) {
