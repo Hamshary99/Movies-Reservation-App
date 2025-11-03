@@ -17,7 +17,8 @@
     "stripe:secret": "stripe listen --forward-to http://localhost:3000/stripe/webhook --print-secret",
     "stripe:trigger:complete": "stripe trigger checkout.session.completed",
     "stripe:trigger:cancel": "stripe trigger checkout.session.expired",
-    "dev:all": "concurrently \"npm run dev\" \"npm run stripe:listen\" \"npm run studio\""
+    "dev:all": "concurrently \"npm run server\" \"npm run client\" \"npm run stripe:listen\" \"npm run studio\"",
+    "dev:app": "concurrently \"npm run server\" \"npm run client\""
   },
   "type": "module",
   "author": "",

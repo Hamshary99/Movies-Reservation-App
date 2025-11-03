@@ -5,7 +5,7 @@ import * as seatSchema from "../models/index.js";
 import * as userSchema from "../models/index.js";
 import * as movieSchema from "../models/index.js";
 import { db } from "./dbConfig.js";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, isNull, not } from "drizzle-orm";
 import { ApiError, SQLError } from "../utils/errorHandler.js";
 import { UUID } from "crypto";
 
@@ -20,6 +20,7 @@ export const checkSeatAvailability = async (
   showtimeId: UUID,
   seatIds: any[]
 ) => {
+   seatIds = Array.isArray(seatIds) ? seatIds : [seatIds];
   try {
     // Unrealistic seat IDs can be passed since SQL returns empty data for invalid IDs instead of throwing an error
     const validSeats = await db
@@ -66,6 +67,7 @@ export const createBooking = async (
   try {
     const totalPrice = showtimePrice * seatIds.length;
     
+    console.log("DEBUG totalPrice:", totalPrice, "showtimePrice:", showtimePrice, "seatIds:", seatIds);
     const booking = await db
       .insert(bookingDB.bookingTable)
       .values({
@@ -78,6 +80,7 @@ export const createBooking = async (
     if (!booking[0]) {
       throw new SQLError(500, "Failed to create booking.");
     }
+
 
     return booking[0];
   } catch (error: any) {
@@ -218,7 +221,8 @@ export const getBookingById = async (BookingId: number, userId: UUID) => {
 
     // console.log("booking: ", booking);
     if (!booking[0]) {
-      throw new ApiError("Booking not found", 404);
+      // throw new ApiError("Booking not found", 404);
+      return null;
     }
     
     if(booking[0].userId !== userId) {
@@ -327,6 +331,37 @@ export const getUserBookings = async (userId: UUID) => {
     );
   }
 };
+
+export const getAvailableSeatsForShowtime = async (showtimeId: UUID) => {
+  try {
+    const seatsWithStatus = await db
+      .select({
+        seatId: seatDB.seatsTable.id,
+        rowLabel: seatDB.seatsTable.rowLabel,
+        // booked if it EXISTS in booking_seats
+        isBooked: not(isNull(bookingDB.bookingSeatTable.id)),
+      })
+      .from(seatDB.seatsTable)
+      .leftJoin(
+        bookingDB.bookingSeatTable,
+        and(
+          eq(seatDB.seatsTable.id, bookingDB.bookingSeatTable.seatId),
+          eq(bookingDB.bookingSeatTable.showtimeId, showtimeId)
+        )
+      );
+
+    console.log("seatsWithStatus: ", seatsWithStatus);
+    
+    return seatsWithStatus;
+  } catch (error: any) {
+    throw new SQLError(
+      error.message || "Failed to fetch available seats",
+      error.statusCode || 500,
+      "SQL_error",
+      error
+    );
+  }
+}
 
 export const cancelBooking = async (bookingId: number) => {
   try {

@@ -48,7 +48,6 @@ export class SQLError extends Error {
     this.statusCode = statusCode;
     this.name = "SQLError";
     this.type = type;
-    this.fieldErrors = fieldErrors;
     if (cause?.stack) {
       this.stack = `${this.stack || ""}\nCaused by: ${cause.stack}`;
     }

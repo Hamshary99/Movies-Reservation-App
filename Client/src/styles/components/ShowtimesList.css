@@ -1,0 +1,45 @@
+.showtimes-grid {
+  padding: 20px;
+}
+
+.showtime-card {
+  padding: 16px;
+  text-align: center;
+  transition: transform 0.2s;
+}
+
+.showtime-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.showtime-time {
+  color: #1976d2;
+  margin-bottom: 8px !important;
+}
+
+.showtime-hall {
+  margin-bottom: 8px !important;
+  font-weight: 500;
+}
+
+.available-seats {
+  color: #666;
+  margin-bottom: 12px !important;
+}
+
+.showtime-price {
+  color: #2e7d32;
+  margin-bottom: 16px !important;
+}
+
+.select-seats-button {
+  margin-top: 8px !important;
+}
+
+.no-showtimes {
+  padding: 24px;
+  text-align: center;
+  margin: 20px;
+  background-color: #f5f5f5;
+}

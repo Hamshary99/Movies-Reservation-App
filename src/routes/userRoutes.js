@@ -31,7 +31,7 @@ router.put('/profile/:id', authMiddleware, restrictTo("user"), validate(schemas.
 router.delete('/profile/:id', authMiddleware, restrictTo("user"), deleteProfile);
 // router.get("/showtimes", getShowtimes); // This route is unnecessary and redundant, only good for debugging
 router.get('/showtime/:id', getShowtime);
-router.get('/showtime', getShowtimesOfMovie);
+router.get('/showtime/movie/:movieId', getShowtimesOfMovie);
 router.get('/showtime/:id/seats', getAvailableSeatsForShowtime);
 
 // Booking routes

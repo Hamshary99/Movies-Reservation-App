@@ -1,0 +1,43 @@
+.movie-info {
+  padding: 20px;
+}
+
+.movie-title {
+  margin-bottom: 16px;
+  color: #1976d2;
+}
+
+.movie-metadata {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  color: #666;
+}
+
+.movie-description {
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.movie-genres {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.genre-chip {
+  background-color: #e3f2fd;
+  color: #1976d2;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 0.875rem;
+}
+
+.movie-poster {
+  width: 100%;
+  max-width: 300px;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 16px;
+}

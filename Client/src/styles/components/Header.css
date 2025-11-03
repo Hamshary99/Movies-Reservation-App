@@ -1,0 +1,38 @@
+.header {
+  background-color: #fff !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem 1rem !important;
+}
+
+.logo {
+  cursor: pointer;
+  color: var(--primary-color);
+  font-weight: 500;
+}
+
+.nav-links {
+  display: flex;
+  gap: 1rem;
+}
+
+.auth-section {
+  display: flex;
+  align-items: center;
+}
+
+.profile-button {
+  margin-left: 1rem;
+}
+
+.avatar {
+  background-color: var(--primary-color) !important;
+}
+
+.profile-menu {
+  margin-top: 45px;
+}

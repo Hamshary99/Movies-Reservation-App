@@ -39,8 +39,9 @@ export const checkoutPayment = async (bookingDetails, seatIds, showtimeId, user)
         bookingId: bookingDetails.id,
       },
       mode: "payment",
-      success_url: "http://localhost:5173/payment-success",
-      cancel_url: "http://localhost:5173/payment-cancel",
+      // success_url: `${process.env.CLIENT_URL}/booking-success?session_id={CHECKOUT_SESSION_ID}`,
+      success_url: `http://localhost:5173/payment/success?bookingId=${bookingDetails.id}`,
+      cancel_url: `${process.env.CLIENT_URL}/booking-cancel`,
     });
 
     if(!session || !session.url) {

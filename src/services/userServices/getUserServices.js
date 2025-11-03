@@ -80,7 +80,7 @@ export const fetchShowtimesOfMovie = async (movieId) => {
         movieId,
       );
       if (!dbShowtimes || dbShowtimes.length === 0) {
-        logger.warn("Showtime not found", { movieId });
+        logger.warn("Showtime not found for movie: " + movieId);
         throw new ApiError("Showtime is not found", 404);
       }
       return dbShowtimes;
@@ -128,7 +128,8 @@ export const fetchBooking = async (bookingId, userId) => {
       );
       if (!dbBooking) {
         logger.warn("Booking not found", { bookingId, userId });
-        throw new ApiError("Booking not found", 404);
+        // throw new ApiError("Booking not found", 404);
+        return null;
       }
       return dbBooking;
     });
@@ -179,14 +180,16 @@ export const fetchAvailableSeatsForShowtime = async (showtimeId) => {
     });
 
     // Find the available seats
-    const seatsWithStatus = await cacheWrapper(cacheKeys.availableSeats(showtimeId), async () => {
-      const dbSeatsWithStatus = await bookingRepository.getAvailableSeatsForShowtime(showtimeId);
-      if (!dbSeatsWithStatus || dbSeatsWithStatus.length === 0) {
-        logger.warn("Available seats not found", { showtimeId });
-        throw new ApiError("Available seats not found", 404);
-      }
-      return dbSeatsWithStatus;
-    });
+    // const seatsWithStatus = await cacheWrapper(cacheKeys.availableSeats(showtimeId), async () => {
+    //   const dbSeatsWithStatus = await bookingRepository.getAvailableSeatsForShowtime(showtimeId);
+    //   if (!dbSeatsWithStatus || dbSeatsWithStatus.length === 0) {
+    //     logger.warn("Available seats not found", { showtimeId });
+    //     throw new ApiError("Available seats not found", 404);
+    //   }
+    //   return dbSeatsWithStatus;
+    // });
+
+    const seatsWithStatus = await bookingRepository.getAvailableSeatsForShowtime(showtimeId);
 
     return seatsWithStatus;
   } catch (error) {

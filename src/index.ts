@@ -18,31 +18,34 @@ import webhookRouter from "./routes/webhookRoutes.js";
 import { loggerMiddleware } from "./middleware/loggerMiddleware.js";
 import { handleError } from "./utils/errorHandler.js";
 
-
 const app = express();
 const PORT = process.env.PORT || 3000;
-
-
 
 // Helmet, to be put before any routes to set security-related HTTP headers
 app.use(helmet());
 
 // Rate limiting to prevent abuse
 const limiter = rateLimit({
-  max: 100, // Limit each IP to 100 requests per windowMs
+  max: 501, // Limit each IP to 100 requests per windowMs
   windowMs: 60 * 60 * 1000, // 1 hour window
   message: "Too many requests from this IP, please try again later.",
 });
 app.use(limiter);
 
-// Enable CORS for all origins and allow Authorization header
+
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:3000"],
+    origin: "http://localhost:5173",
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
+    // preflightContinue: false,
+    // optionsSuccessStatus: 204,
   })
 );
+
+// Handle OPTIONS preflight requests
+app.options("*", cors());
 
 // Custom logger middleware
 app.use(loggerMiddleware);
@@ -51,10 +54,9 @@ app.use(loggerMiddleware);
 app.use("/stripe", webhookRouter);
 
 // Reading and parsing JSON and URL-encoded data from req.body
-app.use(express.json({ limit: '10kb' })); // Limit the amount of data, to protect from DOS attacks
+app.use(express.json({ limit: "10kb" })); // Limit the amount of data, to protect from DOS attacks
 // Serving static files from the 'public' directory
 app.use(express.urlencoded({ extended: true }));
-
 
 // Data sanitization against XSS attacks
 // app.use(xss());
@@ -74,9 +76,9 @@ app.use((req: Request, res: Response, next: NextFunction) => {
   next();
 });
 
-app.use('/auth', loginRoutes);
-app.use('/admin', adminRoutes);
-app.use('/user', userRoutes);
+app.use("/auth", loginRoutes);
+app.use("/admin", adminRoutes);
+app.use("/user", userRoutes);
 // app.use("/employee", employeeRoutes);
 
 // API error handling
@@ -85,15 +87,18 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   handleError(err, req, res, next);
 });
 
-
-
 app.listen(PORT, () => {
-  logger.info(`Server is running on port ${PORT}`, { env: process.env.NODE_ENV || "development" });
+  logger.info(`Server is running on port ${PORT}`, {
+    env: process.env.NODE_ENV || "development",
+  });
 });
 
 // Handle uncaught errors
 process.on("uncaughtException", (err) => {
-  logger.error("Uncaught Exception", { message: err.message, stack: err.stack });
+  logger.error("Uncaught Exception", {
+    message: err.message,
+    stack: err.stack,
+  });
   process.exit(1);
 });
 

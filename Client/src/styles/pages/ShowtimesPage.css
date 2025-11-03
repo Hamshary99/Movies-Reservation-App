@@ -1,0 +1,32 @@
+.showtimes-container {
+  padding: 24px 0;
+}
+
+.date-picker-section {
+  margin-bottom: 32px;
+}
+
+.showtimes-section {
+  margin-top: 32px;
+}
+
+.section-title {
+  margin-bottom: 16px !important;
+  color: #333;
+  font-weight: 500;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.error-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 400px;
+  text-align: center;
+}

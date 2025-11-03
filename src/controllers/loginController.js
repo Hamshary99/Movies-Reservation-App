@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 import * as signupRepository from "../repository/userRepository.js";
 import * as userSchema from "../models/userSchema.js";
 import * as tokenUtils from "../utils/tokenUtils.js";
+import path from "path";
 
 const tokenCookieCreator = (res, token) => {
   let cookieOptions = {
@@ -13,7 +14,10 @@ const tokenCookieCreator = (res, token) => {
         process.env.JWT_REFRESH_COOKIE_EXPIRATION * 24 * 60 * 60 * 1000
     ),
     httpOnly: true, // Prevents client-side JavaScript from accessing the cookie
-    sameSite: "strict", // Helps prevent CSRF attacks
+    // sameSite: "strict", // Helps prevent CSRF attacks
+    secure: false, // Set to true if using HTTPS
+    sameSite: "none", // Allows cross-site cookies
+    path: '/', // Cookie is accessible across the entire site
   };
   if (process.env.NODE_ENV === "production") {
     cookieOptions.secure = true; // Ensures the cookie is sent over HTTPS only
@@ -51,6 +55,7 @@ export const postLogin = async (req, res, next) => {
       req.body.email,
       req.body.password
     );
+
 
     const accessToken = tokenUtils.generateAccessToken(user);
     const refreshToken = tokenUtils.generateRefreshToken(user);
@@ -169,7 +174,7 @@ export const postLogout = async (req, res, next) => {
       throw new ApiError("Refresh token not found", 401);
     }
 
-    const payload = jwt.verify(refreshToken, process.env.JWT_SECRET);
+    const payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
 
     const user = await signupRepository.getUserById(payload.id);
     if (!user || user.refreshToken !== refreshToken) {

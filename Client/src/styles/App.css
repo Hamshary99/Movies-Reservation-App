@@ -1,0 +1,68 @@
+.app-header {
+  margin-bottom: 2rem;
+}
+
+.app-title {
+  flex-grow: 1;
+}
+
+.loading-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 4rem;
+}
+
+.container {
+  padding: 2rem;
+}
+
+.container-centered {
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.back-button {
+  margin-bottom: 1rem;
+}
+
+.movie-image {
+  width: 100%;
+  max-height: 300px;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.movie-details-section {
+  margin-top: 1rem;
+}
+
+.movie-details-item {
+  margin-bottom: 0.5rem;
+}
+
+.movie-genres {
+  margin-top: 0.5rem;
+}
+
+.genre-item {
+  margin-left: 0.5rem;
+}
+
+.actions-container {
+  margin-top: 2rem;
+}
+
+.flex-center {
+  display: flex;
+  justify-content: center;
+  margin: 2rem 0;
+}
+
+.booking-summary {
+  margin-top: 2rem;
+}
+
+.confirmation-message {
+  margin-bottom: 1rem;
+}

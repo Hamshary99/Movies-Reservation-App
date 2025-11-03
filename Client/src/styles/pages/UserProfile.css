@@ -1,0 +1,31 @@
+.profile-container {
+  max-width: 600px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+.error-message {
+  color: red;
+  text-align: center;
+  margin-top: 40px;
+}
+
+.profile-header {
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.profile-section {
+  margin-bottom: 20px;
+}
+
+.profile-field {
+  margin-bottom: 16px;
+}
+
+.profile-actions {
+  margin-top: 24px;
+  display: flex;
+  gap: 16px;
+  justify-content: flex-end;
+}

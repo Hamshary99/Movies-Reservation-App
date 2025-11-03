@@ -54,9 +54,10 @@ export const postBookingTicket = async (data, userId) => {
       if (!newBooking) throw new ApiError("Failed to create booking", 500);
       logger.info("Created booking:", { ...context, bookingId: newBooking.id });
 
+      const seatIds = Array.isArray(data.seatId) ? data.seatId : [data.seatId];
       const payment = await checkoutPayment(
         newBooking,
-        seatId,
+        seatIds,
         showtimeId,
         user
       );
