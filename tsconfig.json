@@ -12,8 +12,8 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "verbatimModuleSyntax": false,
-    "allowJs": true, // <--- allow importing .js
-    "checkJs": false, // <--- don’t type-check .js
+    "allowJs": true, 
+    "checkJs": false, //
     // "noEmit": true,
     "noEmit": false,
     // "allowImportingTsExtensions": true

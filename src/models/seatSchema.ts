@@ -9,16 +9,13 @@ import * as hallSchema from "./hallSchema";
 
 export const seatsTable = pgTable("seats", {
   id: serial("id").primaryKey(),
-  rowLabel: text("seat_number").notNull(),
-  // seatNumber: integer("seat_number").notNull(),
+  seatLabel: text("seatLabel").notNull(),
   hall: integer("halls")
     .notNull()
     .references(() => hallSchema.hallsTable.id, {
       onDelete: "cascade",
       onUpdate: "cascade",
     }),
-  // isAvailable: boolean("is_available").default(true).notNull(),
-  // booked: boolean("booked").default(false).notNull(),
 });
 
 export type Seat = typeof seatsTable.$inferSelect;

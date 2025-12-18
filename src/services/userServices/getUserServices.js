@@ -179,16 +179,7 @@ export const fetchAvailableSeatsForShowtime = async (showtimeId) => {
       logger.warn("Showtime ID is missing in fetchAvailableSeatsForShowtime", { showtimeId });
       throw new ApiError("Showtime ID is required", 400);
     }
-    // Find the showtime
-    const showtime = await cacheWrapper(cacheKeys.showtime(showtimeId), async () => {
-      const dbShowtime = await showtimeRepository.getShowtimeById(showtimeId);
-      if (!dbShowtime) {
-        logger.warn("Showtime not found", { showtimeId });
-        throw new ApiError("Showtime not found", 404);
-      }
-      return dbShowtime;
-    });
-
+    logger.debug("Fetching available seats for showtime", { showtimeId });
     const seatsWithStatus = await bookingRepository.getAvailableSeatsForShowtime(showtimeId);
 
     return seatsWithStatus;

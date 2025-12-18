@@ -2,7 +2,6 @@ import jwt from "jsonwebtoken";
 import * as userSchema from "../models/userSchema.js";
 import * as userRepository from "../repository/userRepository.js";
 import { eq } from "drizzle-orm";
-import { db } from "../repository/dbConfig.js";
 
 export const authMiddleware = async (req, res, next) => {
   try {

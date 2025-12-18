@@ -12,19 +12,20 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { userBookingService as bookingService } from "../services/api";
+import { userBookingService } from "../services/api";
 
 const MyBookingsPage = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
   const navigate = useNavigate();
   const { user } = useAuth();
 
   useEffect(() => {
     const fetchBookings = async () => {
       try {
-        const response = await bookingService.getUserBookings();
+        const response = await userBookingService.getUserBookings();
         const data = response?.data || response;
 
         const baseBookings =
@@ -61,6 +62,37 @@ const MyBookingsPage = () => {
     if (!dateStr) return "No date";
     const date = new Date(dateStr);
     return date.toLocaleDateString("en-GB"); // dd/mm/yyyy format
+  };
+
+  const handleDeleteBooking = async (bookingId, e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!bookingId) {
+      setError("Invalid booking ID");
+      return;
+    }
+
+    try {
+      setError(null);
+      setSuccess(null);
+
+      const response = await userBookingService.cancelBooking(bookingId);
+
+      // Optional: check response data if your API returns something like { success: true }
+      console.log("Cancel response:", response);
+     
+      setBookings((prev) =>
+        prev.filter((b) => b.bookingId !== bookingId && b._id !== bookingId)
+      );
+      setSuccess("Booking canceled successfully.");
+    } catch (err) {
+      console.error("Failed to cancel booking:", err);
+      setError(
+        err.response?.data?.message ||
+          "Failed to cancel booking. It may already be canceled or invalid."
+      );
+    }
   };
 
   if (loading) {
@@ -162,6 +194,17 @@ const MyBookingsPage = () => {
                     }
                   >
                     View Details
+                  </Button>
+                </Box>
+
+                <Box mt={2}>
+                  <Button
+                    variant="contained"
+                    size="small"
+                    color="error"
+                    onClick={(e) => handleDeleteBooking(booking.bookingId, e)}
+                  >
+                    Cancel Booking
                   </Button>
                 </Box>
               </CardContent>

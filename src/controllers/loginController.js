@@ -5,7 +5,6 @@ import jwt from "jsonwebtoken";
 import * as signupRepository from "../repository/userRepository.js";
 import * as userSchema from "../models/userSchema.js";
 import * as tokenUtils from "../utils/tokenUtils.js";
-import path from "path";
 
 const tokenCookieCreator = (res, token) => {
   let cookieOptions = {

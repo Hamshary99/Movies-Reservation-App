@@ -5,9 +5,10 @@ import * as seatSchema from "../models/index.js";
 import * as userSchema from "../models/index.js";
 import * as movieSchema from "../models/index.js";
 import { db } from "./dbConfig.js";
-import { and, eq, inArray, isNull, not } from "drizzle-orm";
+import { and, eq, inArray, isNull, not, sql } from "drizzle-orm";
 import { ApiError, SQLError } from "../utils/errorHandler.js";
 import { UUID } from "crypto";
+import logger from "../utils/logger.js";
 
 const bookingDB = bookingSchema.bookingSchema;
 const showtimeDB = showtimeSchema.showtimeSchema;
@@ -233,7 +234,7 @@ export const getBookingById = async (BookingId: number, userId: UUID) => {
     const reservedSeats = await Promise.all(
       seatIds.map(async (seatId) => {
         const [seat] = await db
-          .select({ id: seatDB.seatsTable.id, rowLabel: seatDB.seatsTable.rowLabel })
+          .select({ id: seatDB.seatsTable.id, seatLabel: seatDB.seatsTable.seatLabel })
           .from(seatDB.seatsTable)
           .where(eq(seatDB.seatsTable.id, seatId))
           .limit(1);
@@ -309,7 +310,7 @@ export const getUserBookings = async (userId: UUID) => {
         const reservedSeats = await Promise.all(
           seatIds.map(async (seatId) => {
             const seat = await db
-              .select({ rowLabel: seatDB.seatsTable.rowLabel })
+              .select({ seatLabel: seatDB.seatsTable.seatLabel })
               .from(seatDB.seatsTable)
               .where(eq(seatDB.seatsTable.id, seatId))
               .limit(1);
@@ -334,12 +335,13 @@ export const getUserBookings = async (userId: UUID) => {
 
 export const getAvailableSeatsForShowtime = async (showtimeId: UUID) => {
   try {
+    logger.info("Fetching available seats for showtime", { showtimeId });
     const seatsWithStatus = await db
       .select({
         seatId: seatDB.seatsTable.id,
-        rowLabel: seatDB.seatsTable.rowLabel,
+        seatLabel: seatDB.seatsTable.seatLabel,
         // booked if it EXISTS in booking_seats
-        isBooked: not(isNull(bookingDB.bookingSeatTable.id)),
+        isBooked: sql<boolean>`CASE WHEN ${bookingDB.bookingSeatTable.id} IS NOT NULL THEN true ELSE false END`,
       })
       .from(seatDB.seatsTable)
       .leftJoin(

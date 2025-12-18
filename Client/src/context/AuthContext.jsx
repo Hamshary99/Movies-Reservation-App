@@ -1,22 +1,19 @@
-// AuthContext.jsx
 import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import axios from "axios";
 
 const AuthContext = createContext(null);
 
-// Set baseURL to your API (adjust if needed)
 axios.defaults.baseURL = "http://localhost:3000";
 axios.defaults.withCredentials = true;
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  // loading indicates "we're resolving initial auth state" — keep true until refresh attempt finishes
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   // Prevent double initialization when React StrictMode runs effects twice in dev
   const initializedRef = useRef(false);
-  // Track if we already tried refresh (so we don't spam refresh endpoint)
+  // Track if we already tried refresh
   const refreshTriedRef = useRef(false);
   // Track current axios request so we can cancel it on unmount
   const cancelSourceRef = useRef(null);
